@@ -144,3 +144,64 @@ claude "Quiero migrar de Zernio a Meta Cloud API."
 
 Construido con [WhatsApp AgentKit](https://github.com/Hainrixz/whatsapp-agentkit) de
 Todo de IA. Licencia del kit en `LICENSE-agentkit`.
+
+---
+
+## Cómo meterle contexto del negocio
+
+Benjamín saca todo lo que sabe de dos lugares:
+
+| Dónde | Qué va ahí |
+|---|---|
+| `config/prompts.yaml` | **Quién es y cómo se comporta.** Identidad, tono, reglas de venta, cómo cierra |
+| `knowledge/*.md` | **Qué sabe.** Servicios, precios, credenciales, casos, políticas, FAQ |
+
+La regla práctica: si es una *instrucción* sobre cómo actuar, va al prompt; si es
+*información* que podría cambiar mañana, va a `knowledge/`.
+
+### Agregar material
+
+```bash
+# Texto: simplemente cae en la carpeta y ya queda cargado
+cp casos-de-exito.md knowledge/
+
+# PDF, Word, CSV, HTML: se convierten primero
+pip install pypdf python-docx
+python scripts/ingesta.py ~/Documentos/programa-2026.pdf
+
+# Ver qué está cargado y cuánto cuesta
+python scripts/contexto.py
+```
+
+No hace falta reiniciar el servidor: el contexto se relee solo cuando cambia un
+archivo en disco.
+
+Los archivos se guardan en `.md` a propósito, no en PDF. Así el contexto queda
+versionado en git y puedes ver en un diff exactamente qué cambió de lo que Benjamín
+le dice a tus clientes.
+
+### Qué cuesta, de verdad
+
+El contexto viaja **en cada mensaje**. Sin caché, 30.000 tokens de contexto cuestan
+unos 6 centavos por turno; con caché, menos de uno. Por eso el agente marca el
+contexto como cacheable: la primera llamada lo escribe a 1,25× el precio de entrada y
+las siguientes lo leen a 0,1×.
+
+Dos cosas que conviene saber:
+
+- **El caché dura 5 minutos** y cada lectura reinicia ese reloj. Dentro de una
+  conversación seguida se mantiene caliente; si pasan más de 5 minutos sin mensajes,
+  el siguiente vuelve a escribirlo.
+- **Hay un mínimo para que cachee:** 1.024 tokens en Sonnet 5, 512 en Opus 5, 4.096 en
+  Haiku 4.5. Por debajo de eso la API no cachea y **no avisa**. `scripts/contexto.py`
+  te lo dice, y en los logs del agente lo ves como `cache lee 0` mensaje tras mensaje.
+
+### Cuánto contexto es demasiado
+
+Más contexto no es mejor automáticamente. Un prompt con tres transcripciones completas
+de conferencias diluye las reglas de venta: el modelo tiene más dónde perderse y las
+instrucciones importantes pesan relativamente menos.
+
+Lo que funciona es material curado y denso: precios, condiciones, objeciones
+frecuentes con su respuesta, casos con cifras. Lo que no funciona es volcar todo el
+Drive. Si un cliente nunca lo va a preguntar por WhatsApp, no va en el contexto.

@@ -60,6 +60,34 @@ Aplica al system prompt y a cualquier texto de cara al cliente:
 `main.py` importa `agent.tools` a propósito: ese import registra la tabla `leads` en el
 metadata de SQLAlchemy antes del `create_all`. Si lo quitas, la tabla no se crea.
 
+## De dónde sale el contexto de Benjamín
+
+Dos fuentes, y la distinción importa:
+
+- `config/prompts.yaml` — **cómo se comporta**: identidad, tono, reglas de venta, cierre.
+- `knowledge/*.md` — **qué sabe**: precios, servicios, credenciales, casos, políticas.
+
+`brain.py` las junta en `construir_system()`. La carpeta se lee en runtime y se relee
+sola cuando cambia un archivo (huella de nombre, tamaño y fecha), así que no hace falta
+reiniciar el servidor para corregir un precio.
+
+Solo se leen `.md` y `.txt`. Los PDF y Word se convierten con `scripts/ingesta.py`,
+que deja un `.md` en `knowledge/`. Es deliberado: el contexto queda revisable en un
+diff, no enterrado en un binario.
+
+### Reglas al tocar esto
+
+- **El orden de los archivos tiene que ser estable.** El caché de la API es un match de
+  prefijo byte a byte: si el orden cambiara entre llamadas, se perdería el caché entero
+  en cada mensaje. Por eso `_huella_knowledge()` ordena alfabéticamente.
+- **Nunca metas nada variable en el system prompt** (fecha de hoy, nombre del cliente,
+  un id). Invalida el caché en cada llamada. Eso va en `messages`, no en `system`.
+- **Verifica el caché en los logs.** Cada respuesta imprime `cache escribe` y
+  `cache lee`. Si `cache lee` queda en cero mensaje tras mensaje, algo lo está
+  invalidando o el contexto no llega al mínimo del modelo (1.024 tokens en Sonnet 5,
+  512 en Opus 5, 4.096 en Haiku 4.5).
+- `python scripts/contexto.py` mide el contexto y proyecta el costo mensual.
+
 ## Estado real de las herramientas
 
 `tools.py` **no está conectado al tool use de Claude**. Hoy Benjamín conversa y califica
