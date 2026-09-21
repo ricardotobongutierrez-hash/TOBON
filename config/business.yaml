@@ -1,0 +1,27 @@
+# Configuración del negocio — Generado por AgentKit
+negocio:
+  nombre: "José I. Tobón Consultores"
+  descripcion: >-
+    Consultoría y entrenamiento corporativo en negociación, dirigida por José Ignacio
+    Tobón, número 5 del ranking Global Gurus 2026 y único latinoamericano e
+    hispanohablante del Top 30. 34 años de trayectoria, más de 12.000 negociadores
+    entrenados, más de 300 empresas y presencia en más de 30 países. El portafolio va
+    desde bootcamps abiertos y jornadas in-house hasta acompañamiento continuo,
+    intervención en negociaciones críticas y licencia corporativa de la metodología.
+    Los clientes son empresas medianas y grandes de Latinoamérica, España y Portugal
+    cuyos equipos comerciales, de compras o de relaciones laborales negocian montos
+    materiales.
+  horario: "Atención por WhatsApp las 24 horas, todos los días"
+
+agente:
+  nombre: "Benjamín"
+  tono: "Profesional y formal"
+  casos_de_uso:
+    - "Responder preguntas frecuentes sobre servicios, metodología y precios"
+    - "Calificar leads y atender consultas comerciales"
+    - "Agendar el diagnóstico estratégico 1:1 o una llamada de 20 minutos"
+
+metadata:
+  creado: "2026-09-21"
+  proveedor: "zernio"
+  version: "2.0"
