@@ -34,14 +34,18 @@ para el agente vive en `knowledge/`.
    libro digital COP 55.000 o USD 18; libro físico COP 115.000, dos por COP 190.000.
 2. **El Bootcamp Abierto está en COP 980.000, no en COP 3.900.000.** Ese segundo valor
    es el del Diplomado y aparece en materiales antiguos del Bootcamp.
-3. **No se inventan descuentos, fechas, cupos ni inventario.** Para 3 o más personas en
+3. **El IVA del 19% se cobra solo a quien necesita factura electrónica**, no por ser
+   empresa. Bootcamp con factura: COP 1.166.200. Diplomado con factura: COP 4.641.000
+   regular, COP 4.163.810 anticipado. Si no lo han mencionado, se da el precio sin IVA
+   y se pregunta.
+4. **No se inventan descuentos, fechas, cupos ni inventario.** Para 3 o más personas en
    el Bootcamp se consulta condición especial, no se promete un número.
-4. **El In-House no se rebaja automáticamente.** Si hay negociación comercial, se escala.
-5. **No se mencionan nombres de empresas clientes** ni resultados confidenciales. La
+5. **El In-House no se rebaja automáticamente.** Si hay negociación comercial, se escala.
+6. **No se mencionan nombres de empresas clientes** ni resultados confidenciales. La
    experiencia se presenta por sectores.
-6. **No se prometen porcentajes** de margen, ventas ni retorno de la inversión.
-7. **La asesoría 1:1 no se cotiza automáticamente.** Se califica y se escala.
-8. **La comunidad Skool no existe como producto.** Es un proyecto en evaluación.
+7. **No se prometen porcentajes** de margen, ventas ni retorno de la inversión.
+8. **La asesoría 1:1 no se cotiza automáticamente.** Se califica y se escala.
+9. **La comunidad Skool no existe como producto.** Es un proyecto en evaluación.
 
 ### Un tarifario en dólares circula por ahí
 

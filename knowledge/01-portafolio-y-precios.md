@@ -7,9 +7,9 @@ Ante cualquier contradicción con materiales antiguos, manda esta tabla.
 
 | Producto | Público | Formato | Precio vigente | Regla |
 |---|---|---|---|---|
-| Bootcamp Abierto de Negociación | Individual y equipos | Presencial, 1 día, 8:00 a 17:00 | COP 980.000 por persona | Empresas, más IVA. Para 3 o más participantes, consultar condición especial |
+| Bootcamp Abierto de Negociación | Individual y equipos | Presencial, 1 día, 8:00 a 17:00 | COP 980.000 por persona | Más IVA solo con factura electrónica: COP 1.166.200. Para 3 o más participantes, consultar condición especial |
 | Bootcamp In-House | Empresas | Presencial corporativo | COP 15.000.000 un día, COP 29.000.000 dos días | Viajes y viáticos no incluidos. El alcance final se cotiza |
-| Diplomado Online en Negociación | Profesionales y empresas | 5 semanas, online | COP 3.900.000, anticipado COP 3.499.000 | Próxima edición, segunda semana de noviembre de 2026 |
+| Diplomado Online en Negociación | Profesionales y empresas | 5 semanas, online | COP 3.900.000, anticipado COP 3.499.000 | Más IVA solo con factura electrónica. Próxima edición, segunda semana de noviembre de 2026 |
 | Masterclass "Personas difíciles" | Profesionales | Online en vivo | USD 99 | Referencia de la edición anunciada para el 12 de octubre de 2026 |
 | Libros digitales | Público general | Digital | COP 55.000 o USD 18 por título | 23 títulos disponibles |
 | Libros físicos | Colombia | Físico | COP 115.000 uno, COP 190.000 dos | El precio individual se ha comunicado con envío incluido |
@@ -30,8 +30,8 @@ estén publicados.
 Entrenamiento presencial intensivo de un día, de nivel junior hasta directivo. Práctica,
 casos, simulaciones y herramientas aplicables.
 
-- Precio por persona: COP 980.000. Con facturación empresarial, más IVA, es decir
-  COP 1.166.200 por participante.
+- Precio por persona: COP 980.000. El IVA del 19% se cobra solo cuando la persona
+  necesita factura electrónica, y en ese caso son COP 1.166.200 por participante.
 - Horario habitual: 8:00 a.m. a 5:00 p.m. Cupos limitados.
 - Certificado de participación emitido por José I. Tobón Consultores.
 - Para 3 o más participantes de la misma organización, hay condición especial que se
@@ -107,13 +107,22 @@ Los cinco módulos:
 4. Negociación con personas difíciles.
 5. Toolbox de planeación.
 
-**Atención con el IVA del Diplomado.** La landing ha comunicado los precios más IVA y el
-checkout los ha mostrado sin IVA. Esa inconsistencia está sin resolver. Si preguntan si
-el precio incluye IVA, no improvisar: decir que se confirma con el equipo.
+### Cuándo aplica el IVA
+
+**El IVA se cobra solo cuando la persona necesita factura electrónica.** Quien compra a
+título personal y no requiere factura paga el precio sin IVA.
+
+| Caso | Regular | Pago anticipado |
+|---|---|---|
+| Sin factura electrónica | COP 3.900.000 | COP 3.499.000 |
+| Con factura electrónica, más IVA del 19% | COP 4.641.000 | COP 4.163.810 |
+
+Si la persona no ha dicho nada de facturación, se da el precio sin IVA y se pregunta si
+va a necesitar factura electrónica. No dar los dos precios de entrada, que confunde.
 
 **Cuidado con la fecha límite del pago anticipado.** Internamente se han manejado dos
 fechas distintas y todavía no hay una sola fuente de verdad. Decir: "Tenemos una tarifa
-de pago anticipado vigente, le confirmo la fecha límite exacta", y escalar. Nunca
+de pago anticipado vigente, te confirmo la fecha límite exacta", y escalar. Nunca
 inventar la fecha.
 
 Se recomienda a quien quiere formación estructurada y profunda, puede comprometer varias
@@ -198,6 +207,9 @@ duración esperada, tema, modalidad y presupuesto si el cliente lo comparte.
 6. No mezclar valores de propuestas históricas con el tarifario actual.
 7. Para pagos en dólares, la referencia vigente es USD 18 por libro digital y USD 99 por
    la masterclass de personas difíciles.
+8. **El IVA del 19% se cobra solo a quien necesita factura electrónica.** No es
+   automático por ser empresa: es por la factura. Si no lo han mencionado, se da el
+   precio sin IVA y se pregunta.
 
 ## Pagos
 

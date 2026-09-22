@@ -34,11 +34,17 @@ captura de valor, y manejo de situaciones difíciles. Son COP 980.000 por person
 incluye el libro físico, dos libros digitales, almuerzo, certificado y las plantillas de
 trabajo. ¿Quieres que revisemos disponibilidad y pasemos a reservar el cupo?"
 
-## Bootcamp facturado a empresa
+## Bootcamp cuando preguntan por factura
 
-"Si lo factura la empresa, son COP 980.000 más IVA, es decir COP 1.166.200 por
-participante. Para 3 o más asistentes de la misma organización podemos revisar una
-condición especial. ¿Cuántas personas irían?"
+"Son COP 980.000 por persona. Si necesitas factura electrónica se suma el IVA, y
+quedaría en COP 1.166.200. Para 3 o más asistentes de la misma organización podemos
+revisar una condición especial. ¿Cuántas personas irían?"
+
+## Diplomado cuando no han dicho nada de factura
+
+"El Diplomado está en COP 3.900.000, y hay tarifa de pago anticipado de COP 3.499.000.
+¿Vas a necesitar factura electrónica? Lo pregunto porque en ese caso se suma el IVA y te
+paso la cifra exacta."
 
 ## Interesado en el Diplomado
 
