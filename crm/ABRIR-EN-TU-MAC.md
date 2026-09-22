@@ -38,20 +38,28 @@ npm install
 cp .env.example .env
 ```
 
-Abre el archivo `.env` (`open -e .env`) y pega un secreto de sesión en
-`AUTH_SECRET`. Para generarlo:
+`npm install` escupe una pila de avisos amarillos (`npm warn deprecated`,
+vulnerabilidades moderadas, scripts de instalación no aprobados). Eso es normal
+en cualquier proyecto de Node y no rompe nada. Lo único que importa es que diga
+`added 327 packages`.
+
+Ahora las dos llaves del `.env`. Pégalas de una, sin abrir ningún archivo:
 
 ```bash
-openssl rand -base64 48
+sed -i '' "s|^AUTH_SECRET=.*|AUTH_SECRET=$(openssl rand -base64 48)|" .env
+sed -i '' "s|^ENCRYPTION_KEY=.*|ENCRYPTION_KEY=$(openssl rand -base64 48)|" .env
+grep -E '^(AUTH_SECRET|ENCRYPTION_KEY)=' .env
 ```
 
-Copia lo que imprima y déjalo así en el archivo, sin comillas:
+Ese último comando te muestra las dos líneas ya llenas. Si alguna sale vacía,
+ábrelo a mano con `open -e .env` y pega ahí lo que imprima
+`openssl rand -base64 48`, sin comillas.
 
-```
-AUTH_SECRET=lo-que-imprimió-el-comando
-```
+`AUTH_SECRET` firma la cookie de sesión y es obligatoria. `ENCRYPTION_KEY`
+cifra los tokens de Google y solo hace falta el día que conectes el correo,
+pero es gratis dejarla lista.
 
-Guarda, cierra y termina:
+Y termina:
 
 ```bash
 npm run db:migrate
@@ -110,6 +118,9 @@ Después `npm run db:migrate && npm run db:seed` otra vez y listo.
 ## Si algo falla
 
 - **`command not found: npm`** → Node no quedó instalado. Vuelve al paso 1.
+- **Un error que menciona `esbuild` al correr `db:migrate`** → los scripts de
+  instalación que npm dejó sin aprobar. Corre `npm rebuild esbuild` y vuelve a
+  intentar.
 - **`EADDRINUSE` o el puerto 3000 ocupado** → ya tienes algo corriendo ahí.
   Usa `npm run dev -- --port 3100` y abre <http://localhost:3100>.
 - **La pantalla de ingreso no acepta la contraseña** → seguramente no corriste
