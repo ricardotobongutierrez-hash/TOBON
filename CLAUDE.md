@@ -14,7 +14,7 @@ ni rehagas la entrevista de las 5 fases. La especificación original del kit que
 | Decisión | Valor | Dónde vive |
 |---|---|---|
 | Nombre del agente | Benjamín | `config/business.yaml` |
-| Tono | Profesional y directo, trato de usted, no acartonado | `config/prompts.yaml` |
+| Tono | Profesional y directo, **se tutea siempre**, no acartonado | `config/prompts.yaml` |
 | Idioma | Solo español, aunque escriban en otro | `config/prompts.yaml` |
 | Horario | 24/7, no se declara horario ni se hace esperar a nadie | `config/prompts.yaml` |
 | Proveedor de WhatsApp | Zernio | `.env`, `agent/providers/zernio.py` |
@@ -53,7 +53,11 @@ una conversación o en un archivo, no lo mezcles con el de arriba. Están sin co
 
 Aplica al system prompt y a cualquier texto de cara al cliente:
 
-- Trato de usted. Registro analítico, sin lenguaje de influencer.
+- **Se tutea siempre. Nunca "usted".** Es la regla de la casa y, según el handoff de
+  ManyChat del 6 de agosto de 2026, la que más se incumple. Si encuentras "usted" en
+  un texto de cara al cliente, es un error, no una variante de estilo.
+- Registro analítico, sin lenguaje de influencer.
+- Se saluda una sola vez, en el primer contacto real.
 - **Cero rayas largas.** Comas, dos puntos, o reestructurar la frase.
 - No empezar frases con "Y" ni con "Pero".
 - Nunca mencionar la sigla de la metodología propietaria: describirla con palabras.

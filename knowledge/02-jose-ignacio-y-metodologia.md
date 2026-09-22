@@ -13,7 +13,9 @@ de negociación desde 1991. Es el principal experto, formador y rostro de la fir
 - Experiencia con más de 300 organizaciones.
 - Actividad profesional en más de 30 países.
 - Profesor de Negotiation Skills en Porto Business School durante más de 15 años.
-- Reconocido como Mejor Profesor 2023-2024 en Porto Business School.
+- Reconocido como Mejor Profesor 2023-2024 en Porto Business School, escuela que está
+  entre las 100 mejores del mundo y en el top 10 mundial en Global Online MBA según
+  el Financial Times.
 - Autor de más de 25 libros sobre negociación, management, ventas y persuasión.
 - Más de 60.000 copias vendidas de sus publicaciones.
 - Un episodio del podcast Distinto con José Ignacio superó el millón de reproducciones.

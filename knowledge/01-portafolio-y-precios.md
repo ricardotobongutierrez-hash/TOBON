@@ -30,7 +30,8 @@ estén publicados.
 Entrenamiento presencial intensivo de un día, de nivel junior hasta directivo. Práctica,
 casos, simulaciones y herramientas aplicables.
 
-- Precio por persona: COP 980.000. Con facturación empresarial, más IVA.
+- Precio por persona: COP 980.000. Con facturación empresarial, más IVA, es decir
+  COP 1.166.200 por participante.
 - Horario habitual: 8:00 a.m. a 5:00 p.m. Cupos limitados.
 - Certificado de participación emitido por José I. Tobón Consultores.
 - Para 3 o más participantes de la misma organización, hay condición especial que se
@@ -38,9 +39,16 @@ casos, simulaciones y herramientas aplicables.
 - La inscripción se confirma con el pago recibido y sujeto a disponibilidad.
 
 Incluye casos reales o contextualizados, simulaciones, guías y herramientas, materiales
-de trabajo, contacto con profesionales de otras industrias y certificado. Algunas
-ediciones anteriores incluyeron libros, toolbox, almuerzo y refrigerios: **no prometer
-esos adicionales sin verificar la edición específica.**
+de trabajo, contacto con profesionales de otras industrias y certificado.
+
+En la edición de agosto de 2026 se comunicó que incluye libro físico, dos libros
+digitales, almuerzo, certificado, la presentación y las plantillas de trabajo. Ese es el
+paquete de referencia. Aun así, **verificar la edición específica antes de prometer los
+adicionales**, porque han variado entre ediciones.
+
+El tamaño del grupo es parte de la metodología: cada persona negocia casos y analiza
+resultados, no hay espectadores. Eso limita la cohorte. No usar la expresión "grupos
+pequeños" como argumento de venta si el grupo supera 20 personas.
 
 Contenidos habituales: preparación de negociaciones, intereses y alternativas, opciones
 y criterios, posiciones frente a intereses, creación y captura de valor, concesiones e
@@ -82,11 +90,26 @@ vivo, materiales y libros. Es la oferta más completa del portafolio para profes
 - Precio oficial: COP 3.900.000. Pago anticipado: COP 3.499.000.
 - Próxima edición: segunda semana de noviembre de 2026, manejada alrededor del 9 de
   noviembre. Confirmar la fecha exacta antes de cerrar una venta.
-- Estructura de referencia: cinco cursos asincrónicos, dos sesiones en vivo por semana
-  de unas dos horas, materiales y libros digitales, certificado. En ediciones anteriores
-  el horario fue martes y miércoles de 5:00 a 7:00 p.m. hora de Colombia.
-- Temas: negociación esencial, método Harvard, bases y fundamentos, personas difíciles,
-  toolbox de planeación estratégica.
+- Estructura: cinco módulos en cinco semanas, martes y miércoles de 5:00 a 7:00 p.m.
+  hora de Colombia. Unas 40 horas en total, 20 en vivo y 20 asincrónicas.
+- Incluye ocho libros digitales de autoría propia, las grabaciones de todas las
+  sesiones, un curso asincrónico por módulo, foros, contacto con el facilitador por
+  WhatsApp y certificado de participación.
+- **No tiene cupo máximo.** Nunca decir que quedan pocos lugares.
+- Hay factura a empresa disponible y descuentos para grupos empresariales, que se
+  consultan.
+
+Los cinco módulos:
+
+1. Lo esencial de la negociación.
+2. Método Harvard de negociación.
+3. Fundamentos: zona de posible acuerdo, puntos de retiro, estilos.
+4. Negociación con personas difíciles.
+5. Toolbox de planeación.
+
+**Atención con el IVA del Diplomado.** La landing ha comunicado los precios más IVA y el
+checkout los ha mostrado sin IVA. Esa inconsistencia está sin resolver. Si preguntan si
+el precio incluye IVA, no improvisar: decir que se confirma con el equipo.
 
 **Cuidado con la fecha límite del pago anticipado.** Internamente se han manejado dos
 fechas distintas y todavía no hay una sola fuente de verdad. Decir: "Tenemos una tarifa

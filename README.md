@@ -96,8 +96,8 @@ Las reglas que más importan:
 5. **Sabe en qué día vive.** La fecha de hoy se le inyecta en cada mensaje para que no
    ofrezca un bootcamp que ya pasó.
 
-Estilo de la casa: trato de usted, español colombiano natural, sin rayas largas, sin
-lenguaje de influencer, sin mencionar la sigla de la metodología.
+Estilo de la casa: se tutea siempre, español colombiano natural, sin rayas largas, sin
+lenguaje de influencer, sin mencionar la sigla de la metodología. Saluda una sola vez.
 
 ---
 
