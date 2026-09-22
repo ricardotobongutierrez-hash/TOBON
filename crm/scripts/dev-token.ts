@@ -2,7 +2,7 @@
  * Imprime una cookie de sesion valida para un usuario, para probar la aplicacion
  * desde la consola o un navegador automatizado. Solo para desarrollo.
  *
- *   npx tsx scripts/dev-token.ts ricardo@joseitobon.com
+ *   npx tsx scripts/dev-token.ts ricardo.tobon@joseitobon.com
  */
 import { eq } from "drizzle-orm";
 import { SignJWT } from "jose";
@@ -10,7 +10,7 @@ import { openDb } from "./_db";
 import { users } from "../src/db/schema";
 
 async function main() {
-  const email = process.argv[2] ?? "ricardo@joseitobon.com";
+  const email = process.argv[2] ?? "ricardo.tobon@joseitobon.com";
   const { db, close } = await openDb();
   const [user] = await db.select({ id: users.id, name: users.name }).from(users).where(eq(users.email, email)).limit(1);
   await close();

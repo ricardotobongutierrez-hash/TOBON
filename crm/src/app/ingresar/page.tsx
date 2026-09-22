@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { currentUser } from "@/lib/auth";
-import { logoAsset } from "@/lib/brand";
+import { logoAssets } from "@/lib/brand";
 import { hasUsers } from "@/server/actions/auth";
 import { Wordmark } from "@/components/brand/wordmark";
 import { LoginForm } from "./login-form";
@@ -17,7 +17,7 @@ export default async function LoginPage() {
     <main className="flex min-h-dvh flex-col bg-white lg:flex-row">
       {/* Panel de marca. En movil se reduce a una franja para no robar altura. */}
       <div className="relative flex shrink-0 flex-col justify-between bg-ink px-6 py-8 text-white lg:w-[44%] lg:px-12 lg:py-14">
-        <Wordmark asset={logoAsset()} variant="claro" size="lg" />
+        <Wordmark assets={logoAssets()} variant="claro" size="lg" />
         <div className="mt-8 hidden max-w-md lg:block">
           <p className="brand-wordmark text-[30px] leading-[1.25] text-white">
             El sistema comercial de la firma, en una sola pantalla.

@@ -1,18 +1,33 @@
-LOGO OFICIAL — JOSE I. TOBON, EXPERTOS EN NEGOCIACION
+LOGO OFICIAL — JOSÉ I. TOBÓN, EXPERTOS EN NEGOCIACIÓN
 
-Para que el CRM use el logo oficial, copia el archivo en esta carpeta con uno de
-estos nombres exactos, en este orden de preferencia:
+Los archivos que están aquí salieron del original de la firma (Logo_JIT.ai) sin
+redibujar ni reinterpretar nada: se extrajo el arte vectorial tal cual y solo se
+ajustó el recuadro para que el logo llene su espacio, y se quitó el rectángulo
+negro de fondo de la versión clara.
 
-    logo.svg      (preferido: escala sin perder nitidez)
-    logo.png      (fondo transparente)
-    logo.webp
+    logo.svg         texto oscuro. Va sobre fondos claros: encabezado móvil.
+    logo-claro.svg   texto blanco. Va sobre fondos oscuros: barra lateral,
+                     pantalla de ingreso y primer ingreso.
 
-No hay que tocar codigo ni volver a desplegar en desarrollo: recarga la pagina y
-aparece en el ingreso, la barra lateral, el encabezado movil y las pantallas de
-autenticacion.
+Usar la versión equivocada se ve peor que no poner logo, por eso son dos.
 
-Mientras no exista el archivo, la aplicacion compone el nombre de la firma en
-tipografia. No se dibuja ni se aproxima el logo: eso seria inventar una marca.
+CÓMO REEMPLAZARLOS
 
-Si el logo original es oscuro y se necesita una version para fondos oscuros,
-agrega tambien logo-claro.svg y pasa esa ruta en el componente Wordmark.
+Copia los archivos nuevos con esos mismos nombres y recarga. No hay que tocar
+código. También se aceptan .png y .webp con fondo transparente, en este orden de
+preferencia:
+
+    logo.svg  →  logo.png  →  logo.webp
+    logo-claro.svg  →  logo-claro.png  →  logo-claro.webp
+
+Si borras logo-claro, la aplicación usa la versión oscura en todas partes: no se
+rompe, pero sobre el azul noche de la barra lateral se ve mal.
+
+Si borras los dos, la aplicación compone el nombre de la firma en tipografía. No
+dibuja ni aproxima el logo: eso sería inventar una marca.
+
+EL ORIGINAL
+
+El archivo maestro de Illustrator y el PDF de tres versiones (color sobre claro,
+escala de grises y color sobre oscuro) no viven en el repositorio. Guárdalos en
+el Drive de la firma: aquí solo van las piezas que la aplicación necesita.

@@ -103,10 +103,13 @@ async function main() {
 
   // ───────────── 1. Usuarios ─────────────
   const hash = await bcrypt.hash(SEED_PASSWORD, 10);
+  // Los tres correos reales de la firma. Todos quedan como administradores:
+  // son los socios, y en un equipo de tres restringir a uno a mano es peor que
+  // dejarlos parejos. Cambiar a "equipo" es un clic en Ajustes → Usuarios.
   const people = [
     { name: "José Ignacio Tobón", email: "director@joseitobon.com", role: "admin" as const },
-    { name: "Ricardo Tobón", email: "ricardo@joseitobon.com", role: "admin" as const },
-    { name: "Coordinación Comercial", email: "comercial@joseitobon.com", role: "equipo" as const },
+    { name: "Carlos Tobón", email: "carlos.tobon@joseitobon.com", role: "admin" as const },
+    { name: "Ricardo Tobón", email: "ricardo.tobon@joseitobon.com", role: "admin" as const },
   ];
   const userIds: Record<string, string> = {};
   for (const p of people) {
@@ -122,8 +125,8 @@ async function main() {
     userIds[p.email] = row!.id;
   }
   const jose = userIds["director@joseitobon.com"]!;
-  const ricardo = userIds["ricardo@joseitobon.com"]!;
-  const coord = userIds["comercial@joseitobon.com"]!;
+  const carlos = userIds["carlos.tobon@joseitobon.com"]!;
+  const ricardo = userIds["ricardo.tobon@joseitobon.com"]!;
   console.log(`  usuarios       ${people.length}`);
 
   // ───────────── 2. Etapas del pipeline ─────────────
@@ -402,7 +405,7 @@ async function main() {
       city: "Palmira",
       size: "51-200",
       purchasingCapacity: "media" as const,
-      responsibleId: coord,
+      responsibleId: carlos,
       sourceId: sourceIds["Evento"]!,
       notes: "Contacto en una feria del sector. Interes inicial en el Bootcamp Abierto para dos personas.",
     },
@@ -489,15 +492,15 @@ async function main() {
       segment: "b2b" as const,
       source: "Evento",
       product: "Bootcamp Abierto de Negociación",
-      responsibleId: coord,
+      responsibleId: carlos,
       status: "contactado" as const,
       notes: "Quiere enviar dos personas. Pregunto si hay descuento por grupo.",
     },
     {
-      key: "carlos",
-      fullName: "Carlos Mendoza",
+      key: "mateo",
+      fullName: "Mateo Aristizábal",
       phone: "3183345567",
-      email: "carlos.mendoza@tecnolab.io",
+      email: "mateo.aristizabal@tecnolab.io",
       company: "tecnolab",
       position: "Director de Operaciones",
       city: "Ciudad de México",
@@ -520,7 +523,7 @@ async function main() {
       source: "Meta Ads",
       campaign: "Meta Ads Bootcamp Septiembre",
       product: "Bootcamp Abierto de Negociación",
-      responsibleId: coord,
+      responsibleId: carlos,
       status: "nuevo" as const,
       notes: "Llego por un anuncio. Pregunto la fecha del próximo Bootcamp y si incluye almuerzo.",
     },
@@ -534,7 +537,7 @@ async function main() {
       source: "Instagram",
       campaign: "Masterclass Personas Difíciles Octubre",
       product: "Masterclass: negociar con personas difíciles",
-      responsibleId: coord,
+      responsibleId: carlos,
       status: "nuevo" as const,
       notes: "Interesado en la masterclass de octubre. Dijo que su jefe es una persona muy difícil.",
     },
@@ -548,7 +551,7 @@ async function main() {
       source: "Meta Ads",
       campaign: "Diplomado Noviembre 2026",
       product: "Diplomado Online en Negociación",
-      responsibleId: coord,
+      responsibleId: carlos,
       status: "cliente" as const,
       notes: "Compro el Diplomado con pago anticipado. No necesita factura electrónica.",
     },
@@ -659,14 +662,14 @@ async function main() {
       probability: 20,
       requiresInvoice: false,
       expectedCloseOn: iso(daysAhead(12)),
-      responsibleId: coord,
+      responsibleId: carlos,
       source: "Evento",
       lastInteractionAt: daysAgo(2),
     },
     {
       key: "tecnolab",
       name: "Diplomado Online, Tecnolab",
-      contact: "carlos",
+      contact: "mateo",
       company: "tecnolab",
       product: "Diplomado Online en Negociación",
       amount: "3499000.00",
@@ -691,7 +694,7 @@ async function main() {
       segment: "b2c" as const,
       expectedCloseOn: iso(daysAgo(12)),
       closedAt: daysAgo(12),
-      responsibleId: coord,
+      responsibleId: carlos,
       source: "Meta Ads",
       campaign: "Diplomado Noviembre 2026",
       proposalStatus: "aceptada" as const,
@@ -710,7 +713,7 @@ async function main() {
       probability: 5,
       requiresInvoice: false,
       segment: "b2c" as const,
-      responsibleId: coord,
+      responsibleId: carlos,
       source: "Meta Ads",
       campaign: "Meta Ads Bootcamp Septiembre",
       lastInteractionAt: daysAgo(1),
@@ -726,7 +729,7 @@ async function main() {
       probability: 10,
       requiresInvoice: false,
       segment: "b2c" as const,
-      responsibleId: coord,
+      responsibleId: carlos,
       source: "Instagram",
       campaign: "Masterclass Personas Difíciles Octubre",
       lastInteractionAt: daysAgo(4),
@@ -808,7 +811,7 @@ async function main() {
       number: "P-2026-003",
       title: "Diplomado Online, Tecnolab",
       opp: "tecnolab",
-      contact: "carlos",
+      contact: "mateo",
       company: "tecnolab",
       product: "Diplomado Online en Negociación",
       amount: "3499000.00",
@@ -830,7 +833,7 @@ async function main() {
       version: 1,
       sentAt: daysAgo(16),
       respondedAt: daysAgo(12),
-      responsibleId: coord,
+      responsibleId: carlos,
     },
   ];
 
@@ -964,7 +967,7 @@ async function main() {
       status: "pagado",
       notes: "Pago anticipado del Diplomado por la pasarela.",
       ...demo,
-      createdBy: coord,
+      createdBy: carlos,
     },
   ]);
 
@@ -994,10 +997,10 @@ async function main() {
       scheduledAt: at(daysAhead(48), 17),
       isOnline: true,
       location: "Zoom",
-      responsibleId: coord,
+      responsibleId: carlos,
       notes: "Inicio de la cohorte. Confirmar el envío de accesos una semana antes.",
       ...demo,
-      createdBy: coord,
+      createdBy: carlos,
     },
     {
       title: "Bootcamp In-House Dorex Cargo, día 1",
@@ -1043,7 +1046,7 @@ async function main() {
       dueAt: at(new Date(), 15),
       contact: "diana",
       opp: "diana",
-      responsibleId: coord,
+      responsibleId: carlos,
       notes: "Pregunto la fecha del próximo Bootcamp y si incluye almuerzo.",
     },
     {
@@ -1053,7 +1056,7 @@ async function main() {
       contact: "liliana",
       company: "agroval",
       opp: "agroval",
-      responsibleId: coord,
+      responsibleId: carlos,
       notes: "Para 3 o más hay condición especial. Con dos hay que consultar y no prometer número.",
     },
     {
@@ -1085,10 +1088,10 @@ async function main() {
       responsibleId: ricardo,
     },
     {
-      title: "Responder a Carlos sobre pago en dólares",
+      title: "Responder a Mateo sobre pago en dólares",
       kind: "esperar-respuesta" as const,
       dueAt: at(daysAhead(1), 9),
-      contact: "carlos",
+      contact: "mateo",
       company: "tecnolab",
       opp: "tecnolab",
       responsibleId: jose,
@@ -1132,7 +1135,7 @@ async function main() {
     { kind: "whatsapp" as const, direction: "entrada" as const, title: "Consulta por dos cupos del Bootcamp", contact: "liliana", company: "agroval", opp: "agroval", days: 2 },
     { kind: "whatsapp" as const, direction: "entrada" as const, title: "Consulta desde el anuncio de Meta", body: "Hola, vi el anuncio del Bootcamp. Cuando es el próximo y que incluye?", contact: "diana", opp: "diana", days: 1 },
     { kind: "whatsapp" as const, direction: "entrada" as const, title: "Consulta por la masterclass de octubre", contact: "felipe", opp: "felipe", days: 4 },
-    { kind: "email" as const, direction: "entrada" as const, title: "Correo recibido: pago en dólares", body: "Consulto si el Diplomado se puede pagar en dólares desde México.", contact: "carlos", company: "tecnolab", opp: "tecnolab", days: 11 },
+    { kind: "email" as const, direction: "entrada" as const, title: "Correo recibido: pago en dólares", body: "Consulto si el Diplomado se puede pagar en dólares desde México.", contact: "mateo", company: "tecnolab", opp: "tecnolab", days: 11 },
     { kind: "propuesta" as const, direction: "salida" as const, title: "Propuesta P-2026-004 aceptada", amount: "3499000.00", currency: "COP" as const, contact: "sandra", opp: "sandra", days: 12 },
     { kind: "pago" as const, direction: "entrada" as const, title: "Pago recibido", amount: "3499000.00", currency: "COP" as const, contact: "sandra", opp: "sandra", days: 12 },
     { kind: "servicio" as const, title: "Servicio programado: Diplomado cohorte de noviembre", contact: "sandra", opp: "sandra", days: 10 },

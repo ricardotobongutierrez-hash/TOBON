@@ -9,15 +9,16 @@ import { QuickActions } from "@/components/quick/quick-actions";
 import { UserMenu } from "./user-menu";
 import type { SessionUser } from "@/lib/auth";
 import type { Pickers, Refs } from "@/server/queries/refs";
+import type { BrandAssets } from "@/lib/brand";
 
 export function Topbar({
   user,
-  logo,
+  marca,
   refs,
   pickers,
 }: {
   user: SessionUser;
-  logo: string | null;
+  marca: BrandAssets;
   refs: Refs;
   pickers: Pickers;
 }) {
@@ -28,7 +29,7 @@ export function Topbar({
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
         {/* En movil el logo va aqui; en escritorio vive en la barra lateral. */}
         <Link href="/" className="shrink-0 lg:hidden" aria-label="Inicio">
-          <Wordmark asset={logo} size="sm" />
+          <Wordmark assets={marca} size="sm" />
         </Link>
 
         <div className="hidden flex-1 lg:block">

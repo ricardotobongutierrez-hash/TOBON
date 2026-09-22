@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { logoAsset } from "@/lib/brand";
+import { logoAssets } from "@/lib/brand";
 import { hasUsers } from "@/server/actions/auth";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SetupForm } from "./setup-form";
@@ -15,7 +15,7 @@ export default async function SetupPage() {
     <main className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10">
       <div className="w-full max-w-md">
         <div className="mb-8 flex justify-center">
-          <Wordmark asset={logoAsset()} size="lg" />
+          <Wordmark assets={logoAssets()} size="lg" />
         </div>
         <div className="rounded-lg border border-line-soft bg-white p-6 shadow-[var(--shadow-raised)] sm:p-8">
           <h1 className="text-[20px] font-semibold text-ink">Crea el primer usuario</h1>

@@ -5,15 +5,16 @@ import { usePathname } from "next/navigation";
 import { Wordmark } from "@/components/brand/wordmark";
 import { cn } from "@/lib/utils";
 import { NAV, SETTINGS_ITEM, isActive, type NavCounts } from "./nav";
+import type { BrandAssets } from "@/lib/brand";
 
-export function Sidebar({ logo, counts }: { logo: string | null; counts: NavCounts }) {
+export function Sidebar({ marca, counts }: { marca: BrandAssets; counts: NavCounts }) {
   const pathname = usePathname();
 
   return (
     <aside className="no-print hidden w-60 shrink-0 flex-col border-r border-ink/10 bg-ink lg:flex">
       <div className="px-5 py-5">
         <Link href="/" className="block rounded-md focus-visible:outline-offset-4" aria-label="Inicio">
-          <Wordmark asset={logo} variant="claro" size="md" />
+          <Wordmark assets={marca} variant="claro" size="md" />
         </Link>
       </div>
 

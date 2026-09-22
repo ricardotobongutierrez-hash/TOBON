@@ -42,11 +42,14 @@ abrupto. Para uso diario, un PostgreSQL de verdad.
 Las semillas crean tres cuentas con la contraseña de `SEED_PASSWORD`
 (`TobonCRM2026` por defecto):
 
-| Correo | Rol |
-|---|---|
-| `director@joseitobon.com` | Administrador |
-| `ricardo@joseitobon.com` | Administrador |
-| `comercial@joseitobon.com` | Equipo |
+| Correo | Persona | Rol |
+|---|---|---|
+| `director@joseitobon.com` | José Ignacio Tobón | Administrador |
+| `carlos.tobon@joseitobon.com` | Carlos Tobón | Administrador |
+| `ricardo.tobon@joseitobon.com` | Ricardo Tobón | Administrador |
+
+Los tres quedan como administradores porque son los socios. Bajar a alguno a
+**Equipo** es un clic en Ajustes, Usuarios.
 
 Las tres quedan marcadas para cambiar la contraseña en el primer ingreso.
 **Cámbialas antes de usar el sistema con datos reales.**

@@ -3,7 +3,7 @@ import { and, count, eq, isNull, lt, sql } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { invoices, payments, tasks } from "@/db/schema";
 import { currentUser } from "@/lib/auth";
-import { logoAsset } from "@/lib/brand";
+import { logoAssets } from "@/lib/brand";
 import { runMaintenance } from "@/lib/automation";
 import { formatDateInput, endOfDay } from "@/lib/dates";
 import { loadPickers, loadRefs } from "@/server/queries/refs";
@@ -76,13 +76,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   await maybeMaintenance();
 
   const [refs, pickers, counts] = await Promise.all([loadRefs(), loadPickers(), navCounts(user.id)]);
-  const logo = logoAsset();
+  const marca = logoAssets();
 
   return (
     <div className="flex min-h-dvh">
-      <Sidebar logo={logo} counts={counts} />
+      <Sidebar marca={marca} counts={counts} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar user={user} logo={logo} refs={refs} pickers={pickers} />
+        <Topbar user={user} marca={marca} refs={refs} pickers={pickers} />
         {/* El relleno inferior deja espacio para la barra de navegacion movil. */}
         <main className="min-w-0 flex-1 px-4 pb-24 pt-5 sm:px-6 sm:pt-6 lg:pb-10">{children}</main>
         <MobileNav counts={counts} />

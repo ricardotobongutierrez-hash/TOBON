@@ -1,18 +1,20 @@
 import { cn } from "@/lib/utils";
+import type { BrandAssets } from "@/lib/brand";
 
 /**
- * JOSE I. TOBON — EXPERTOS EN NEGOCIACION.
+ * JOSÉ I. TOBÓN — EXPERTOS EN NEGOCIACIÓN.
  *
- * Con `asset` se pinta el logo oficial sin alterarlo. Sin el, se compone el
- * nombre en tipografia serif, que es el nombre de la firma, no una marca nueva.
+ * `variant` dice sobre qué fondo va, no de qué color es el logo: "claro" es
+ * texto claro sobre fondo oscuro. Con el archivo presente se pinta tal cual;
+ * sin él se compone el nombre en tipografía.
  */
 export function Wordmark({
-  asset,
+  assets,
   size = "md",
   variant = "oscuro",
   className,
 }: {
-  asset?: string | null;
+  assets?: BrandAssets | null;
   size?: "sm" | "md" | "lg";
   variant?: "oscuro" | "claro";
   className?: string;
@@ -23,12 +25,16 @@ export function Wordmark({
     lg: { name: "text-[22px]", tag: "text-[11px]", img: "h-12" },
   }[size];
 
+  // Sobre fondo oscuro se prefiere la versión clara; si no existe, la que haya.
+  const asset =
+    variant === "claro" ? (assets?.claro ?? assets?.oscuro ?? null) : (assets?.oscuro ?? null);
+
   if (asset) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={asset}
-        alt="José I. Tobón — Expertos en Negociación"
+        alt="José I. Tobón, Expertos en Negociación"
         className={cn("w-auto shrink-0 object-contain", scale.img, className)}
       />
     );
