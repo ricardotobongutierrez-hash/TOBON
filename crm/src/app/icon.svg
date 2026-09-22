@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="CRM Jose I. Tobon">
+  <!--
+    Icono de pestana. No es el logo de la firma: es una marca neutra en el azul
+    de la marca. El logo oficial se reemplaza en public/marca/, no aqui.
+  -->
+  <rect width="32" height="32" rx="7" fill="#050834"/>
+  <rect x="8" y="11" width="16" height="2" rx="1" fill="#ffffff"/>
+  <rect x="8" y="16" width="16" height="2" rx="1" fill="#7CB8F2"/>
+  <rect x="8" y="21" width="10" height="2" rx="1" fill="#3A63A8"/>
+</svg>

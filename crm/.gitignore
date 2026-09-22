@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.pgdata/
+storage/
+!storage/.gitkeep
+.DS_Store
+npm-debug.log*
+
+# Resultados del QA: se regeneran con npm run qa:pantallas
+qa/capturas/
+qa/resultado.json

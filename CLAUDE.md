@@ -1,6 +1,28 @@
-# CLAUDE.md — Benjamín, agente de WhatsApp de José I. Tobón Consultores
+# CLAUDE.md — José I. Tobón Consultores
 
 Contexto para Claude Code al trabajar en este repositorio.
+
+## Dos proyectos en un repositorio
+
+| Carpeta | Qué es | Stack |
+|---|---|---|
+| Raíz (`agent/`, `config/`, `knowledge/`) | **Benjamín**, el agente de WhatsApp | Python, FastAPI |
+| `crm/` | **El CRM interno**, sistema comercial de la firma | Next.js, TypeScript, PostgreSQL |
+
+Son independientes y se despliegan por separado. Se hablan por una sola puerta:
+el CRM expone `POST /api/ingesta/whatsapp` y el agente le manda lo que entendió de
+la conversación. La guía está en `crm/docs/agente-whatsapp.md`.
+
+**El CRM tiene su propio CLAUDE.md**: `crm/AGENTS.md` (generado por Next) y
+`crm/README.md`, que explica las decisiones de producto. Antes de tocar `crm/`,
+lee ese README: las reglas de abajo son del agente, no del CRM.
+
+Lo que sí es común a los dos: el tarifario, las reglas de negocio y el estilo de
+la casa. Eso manda en ambos.
+
+---
+
+# Benjamín, el agente de WhatsApp
 
 ## Qué es esto
 
@@ -138,3 +160,53 @@ Benjamín antes de decir que quedó listo. Hace falta `ANTHROPIC_API_KEY` en `.e
 
 Las claves viven en `.env`, que está en `.gitignore`. Nunca las escribas en el código,
 en `config/`, en `knowledge/` ni en un commit.
+
+
+---
+
+# El CRM interno (`crm/`)
+
+Sistema comercial de la firma: contactos, empresas, negocios, propuestas,
+facturas, cobros y entrega del servicio. Lo usan tres personas.
+
+Arrancarlo:
+
+```bash
+cd crm
+npm install
+cp .env.example .env     # AUTH_SECRET es obligatorio
+npm run db:migrate && npm run db:seed
+npm run dev
+```
+
+## Decisiones del CRM que no se revierten sin permiso
+
+1. **Los cinco ciclos de vida van separados** (venta, propuesta, facturación,
+   pago, entrega). Un negocio puede estar ganado y con el pago pendiente al
+   mismo tiempo. Nunca los unifiques en un solo campo de estado.
+2. **La próxima acción se deriva del pendiente abierto más cercano**, no es una
+   columna. Si la duplicas en una tabla, se desincroniza.
+3. **El saldo se calcula, no se guarda.** Total menos pagado.
+4. **El IVA del 19 % es una casilla del negocio**, no una regla automática por
+   ser empresa. Es la misma regla que el agente: se cobra solo a quien necesita
+   factura electrónica.
+5. **Ningún negocio activo sin próxima acción.** La aplicación lo señala en tres
+   pantallas. No quites esos avisos.
+6. **El logo oficial no se dibuja.** Va en `crm/public/marca/`. Mientras no
+   exista, se compone el nombre en tipografía.
+7. **Todo el texto de cara al usuario va en español con tildes y se tutea.**
+
+## Antes de dar un cambio por bueno en el CRM
+
+```bash
+cd crm
+npx tsc --noEmit
+npm run build
+npx tsx scripts/dev-token.ts          # cookie de sesión para las pruebas
+QA_TOKEN=… node qa/smoke.mjs          # 20 pantallas en 4 resoluciones
+QA_TOKEN=… node qa/flujos.mjs         # 29 escenarios comerciales con navegador
+```
+
+Las dos pruebas usan un navegador real. `smoke.mjs` falla si aparece
+desplazamiento horizontal, texto desbordado, un botón sin nombre accesible o un
+error de consola. `flujos.mjs` recorre el ciclo comercial completo haciendo clic.

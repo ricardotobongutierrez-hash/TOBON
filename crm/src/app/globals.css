@@ -1,0 +1,233 @@
+@import "tailwindcss";
+
+/*
+ * Identidad visual de JOSE I. TOBON — EXPERTOS EN NEGOCIACION.
+ *
+ * Paleta oficial, sin inventar tonos:
+ *   Midnight Express #050834   autoridad, navegacion, titulos
+ *   Mariner          #3A63A8   accion, enlaces, estado activo
+ *   Maya Blue        #7CB8F2   acentos, con moderacion
+ *   Shuttle Grey     #5C6972   tipografia secundaria
+ *   Light Grey       #D5D5D5   bordes y fondos suaves
+ *
+ * Fondo blanco y hueso. No hay tablero oscuro: es a proposito.
+ */
+@theme {
+  --color-ink: #050834;
+  --color-ink-80: #2c2f57;
+  --color-ink-60: #53567a;
+  --color-brand: #3a63a8;
+  --color-brand-dark: #2f5089;
+  --color-brand-light: #e8eff9;
+  --color-accent: #7cb8f2;
+  --color-accent-soft: #edf5fd;
+  --color-muted: #5c6972;
+  --color-muted-light: #8a949b;
+  --color-line: #d5d5d5;
+  --color-line-soft: #e8e8ea;
+  --color-canvas: #fafafb;
+  --color-surface: #ffffff;
+
+  /* Estados. Nunca se comunican solo con color: siempre van con texto. */
+  --color-ok: #1b7a52;
+  --color-ok-soft: #e8f5ef;
+  --color-warn: #a35a00;
+  --color-warn-soft: #fdf2e3;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fdecea;
+  --color-info: #3a63a8;
+  --color-info-soft: #e8eff9;
+  --color-off: #5c6972;
+  --color-off-soft: #f1f2f3;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-serif-display), Georgia, "Times New Roman", serif;
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+
+  --shadow-card: 0 1px 2px rgba(5, 8, 52, 0.04), 0 1px 3px rgba(5, 8, 52, 0.03);
+  --shadow-raised: 0 2px 8px rgba(5, 8, 52, 0.07), 0 1px 2px rgba(5, 8, 52, 0.04);
+  --shadow-float: 0 8px 28px rgba(5, 8, 52, 0.12), 0 2px 6px rgba(5, 8, 52, 0.06);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line-soft);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Foco siempre visible: se navega con teclado. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-ink);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* El navegador no debe pintar de amarillo los campos autocompletados. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #fff inset;
+    -webkit-text-fill-color: var(--color-ink);
+  }
+
+  ::placeholder {
+    color: var(--color-muted-light);
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+}
+
+@layer utilities {
+  /* Etiqueta de seccion: "HOY", "PRIORIDADES DE HOY". */
+  /* Flecha de los desplegables. Va en CSS y no como valor arbitrario de
+     Tailwind porque el SVG lleva espacios y ahi se rompe la clase. */
+  .select-arrow {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%235C6972'%20stroke-width='2'%20stroke-linecap='round'%3E%3Cpath%20d='M6%209l6%206%206-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .brand-wordmark {
+    font-family: var(--font-serif);
+    letter-spacing: 0.02em;
+  }
+
+  /* Cifras: tabulares para que las columnas de dinero queden alineadas. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Corta un texto largo en una linea sin desbordar el contenedor. */
+  .clip-1 {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .clip-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .clip-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Rompe correos y URLs largas en lugar de estirar la tarjeta. */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Extiende el area de toque sin agrandar el control a la vista. */
+  .tap-target {
+    position: relative;
+  }
+
+  .tap-target::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+
+  .scroll-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border-radius: 999px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Transiciones sobrias. Nada de rebotes ni animaciones largas. */
+@media (prefers-reduced-motion: no-preference) {
+  .anim-in {
+    animation: anim-in 140ms ease-out;
+  }
+}
+
+@keyframes anim-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Al imprimir un reporte no se llevan la navegacion ni los botones. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

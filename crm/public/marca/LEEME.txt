@@ -1,0 +1,18 @@
+LOGO OFICIAL — JOSE I. TOBON, EXPERTOS EN NEGOCIACION
+
+Para que el CRM use el logo oficial, copia el archivo en esta carpeta con uno de
+estos nombres exactos, en este orden de preferencia:
+
+    logo.svg      (preferido: escala sin perder nitidez)
+    logo.png      (fondo transparente)
+    logo.webp
+
+No hay que tocar codigo ni volver a desplegar en desarrollo: recarga la pagina y
+aparece en el ingreso, la barra lateral, el encabezado movil y las pantallas de
+autenticacion.
+
+Mientras no exista el archivo, la aplicacion compone el nombre de la firma en
+tipografia. No se dibuja ni se aproxima el logo: eso seria inventar una marca.
+
+Si el logo original es oscuro y se necesita una version para fondos oscuros,
+agrega tambien logo-claro.svg y pasa esa ruta en el componente Wordmark.
