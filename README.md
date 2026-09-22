@@ -77,18 +77,26 @@ docs/agentkit-spec.md    Especificación original del kit, como referencia
 
 ## Cómo se comporta Benjamín
 
-Las reglas de venta están en `config/prompts.yaml`. Las tres que más importan:
+El comportamiento está en `config/prompts.yaml`; lo que sabe, en `knowledge/`. La fuente
+de verdad del negocio es `docs/contexto-maestro-v1.md`.
 
-1. **Precio in-house:** responde USD 6.500 con José Ignacio. No menciona la opción de
-   instructor certificado (USD 3.000) en el mismo mensaje. Esa alternativa solo aparece
-   si el prospecto ya escuchó el precio y objetó presupuesto. Así no se regala un
-   descuento que nadie pidió.
-2. **Cierre binario:** termina con una elección entre dos opciones, nunca con
-   "¿le interesa avanzar?".
-3. **No inventa cifras del cliente.** Si hay que cuantificar el costo de no hacer nada,
-   plantea el marco y pide los números al prospecto.
+Lo primero que hace es averiguar cuál de tres rutas es: la persona quiere mejorar ella,
+quiere entrenar a un equipo, o tiene una negociación concreta encima. Sin eso, cualquier
+recomendación es adivinanza, y presentar cinco productos de entrada satura al prospecto.
 
-Estilo de la casa, heredado de las propuestas: trato de usted, sin rayas largas, sin
+Las reglas que más importan:
+
+1. **Tarifario en pesos.** Bootcamp Abierto COP 980.000 por persona; In-House COP 15M un
+   día y COP 29M dos días, sin viajes ni viáticos; Diplomado COP 3.900.000. No inventa
+   descuentos y no rebaja el In-House por su cuenta.
+2. **No inventa nada** que no esté en su documentación: fechas, cupos, inventario,
+   tiempos de entrega, porcentajes de retorno. Dice que lo confirma con el equipo.
+3. **No menciona nombres de empresas clientes.** La experiencia se presenta por sectores.
+4. **Una pregunta por mensaje**, máximo tres opciones, y siempre un siguiente paso.
+5. **Sabe en qué día vive.** La fecha de hoy se le inyecta en cada mensaje para que no
+   ofrezca un bootcamp que ya pasó.
+
+Estilo de la casa: trato de usted, español colombiano natural, sin rayas largas, sin
 lenguaje de influencer, sin mencionar la sigla de la metodología.
 
 ---

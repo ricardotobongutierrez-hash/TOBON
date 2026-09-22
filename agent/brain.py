@@ -8,7 +8,9 @@ respuestas con la API de Anthropic.
 
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import yaml
 from anthropic import AsyncAnthropic
@@ -47,6 +49,22 @@ _soporta_esfuerzo = True
 # (que sabe del negocio). Los archivos se leen en texto plano a proposito: asi el
 # contexto queda versionado en git y se puede revisar en un diff.
 CARPETA_KNOWLEDGE = Path(os.getenv("CARPETA_KNOWLEDGE", "knowledge"))
+
+# El agente necesita saber en que fecha vive: el calendario de bootcamps y
+# masterclasses caduca, y sin la fecha de hoy daria por vigente un evento que ya
+# paso. La fecha NO va en el system prompt: es el unico dato que cambia todos los
+# dias y ahi invalidaria el cache en cada llamada. Va en el mensaje, despues del
+# bloque cacheado.
+ZONA_HORARIA = ZoneInfo(os.getenv("TZ_NEGOCIO", "America/Bogota"))
+DIAS = ("lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo")
+MESES = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
+         "septiembre", "octubre", "noviembre", "diciembre")
+
+
+def fecha_de_hoy() -> str:
+    """La fecha de hoy en la zona horaria del negocio, en texto legible."""
+    ahora = datetime.now(ZONA_HORARIA)
+    return f"{DIAS[ahora.weekday()]} {ahora.day} de {MESES[ahora.month - 1]} de {ahora.year}"
 EXTENSIONES_KNOWLEDGE = (".md", ".txt")
 
 # Caching de prompt. El contexto del negocio es identico en cada mensaje, asi que se
@@ -224,7 +242,20 @@ async def generar_respuesta(mensaje: str, historial: list[dict]) -> tuple[str, b
         return obtener_mensaje_fallback(), False
 
     mensajes = [{"role": m["role"], "content": m["content"]} for m in historial]
-    mensajes.append({"role": "user", "content": mensaje})
+
+    # La fecha viaja como un bloque aparte del mensaje del cliente, no mezclada con su
+    # texto: asi el agente puede descartar un evento vencido sin que el cliente vea el
+    # anexo, y sin tocar el prefijo cacheado. Al historial se guarda solo lo que el
+    # cliente escribio, que es de lo que se encarga main.py.
+    mensajes.append(
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": f"[Contexto del sistema. Hoy es {fecha_de_hoy()}.]"},
+                {"type": "text", "text": mensaje},
+            ],
+        }
+    )
 
     system = construir_system()
     extras = {"output_config": {"effort": ESFUERZO}} if (_soporta_esfuerzo and ESFUERZO) else {}

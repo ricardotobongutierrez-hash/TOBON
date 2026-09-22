@@ -14,7 +14,7 @@ ni rehagas la entrevista de las 5 fases. La especificación original del kit que
 | Decisión | Valor | Dónde vive |
 |---|---|---|
 | Nombre del agente | Benjamín | `config/business.yaml` |
-| Tono | Profesional y formal, trato de usted | `config/prompts.yaml` |
+| Tono | Profesional y directo, trato de usted, no acartonado | `config/prompts.yaml` |
 | Idioma | Solo español, aunque escriban en otro | `config/prompts.yaml` |
 | Horario | 24/7, no se declara horario ni se hace esperar a nadie | `config/prompts.yaml` |
 | Proveedor de WhatsApp | Zernio | `.env`, `agent/providers/zernio.py` |
@@ -24,15 +24,30 @@ No cambies el modelo por tu cuenta para ahorrar costos. Es decisión del dueño 
 
 ## Reglas de negocio que no se tocan sin permiso
 
-1. **El día in-house con José Ignacio no baja de USD 6.500.** Es un piso, no un punto
-   de partida para negociar.
-2. **La opción de instructor certificado (USD 3.000) nunca se ofrece junto al día con
-   José Ignacio.** Solo aparece si el prospecto ya escuchó el precio y objetó
-   presupuesto. Ofrecer las dos juntas destruye el anclaje.
-3. **El diagnóstico de USD 1.500 es acreditable contra el contrato posterior.**
-4. **Nunca inventar cifras del cliente.** Para el costo de no hacer nada se plantea el
-   marco y se piden los números al prospecto.
-5. **Urgencia solo con fechas reales.** Nada de cupos que se acaban.
+Fuente de verdad: `docs/contexto-maestro-v1.md` (22 de septiembre de 2026). Ese
+documento manda sobre cualquier propuesta o material histórico. El contenido curado
+para el agente vive en `knowledge/`.
+
+1. **Tarifario vigente, en pesos colombianos.** Bootcamp Abierto COP 980.000 por
+   persona; In-House COP 15.000.000 un día y COP 29.000.000 dos días, sin viajes ni
+   viáticos; Diplomado COP 3.900.000, anticipado COP 3.499.000; masterclass USD 99;
+   libro digital COP 55.000 o USD 18; libro físico COP 115.000, dos por COP 190.000.
+2. **El Bootcamp Abierto está en COP 980.000, no en COP 3.900.000.** Ese segundo valor
+   es el del Diplomado y aparece en materiales antiguos del Bootcamp.
+3. **No se inventan descuentos, fechas, cupos ni inventario.** Para 3 o más personas en
+   el Bootcamp se consulta condición especial, no se promete un número.
+4. **El In-House no se rebaja automáticamente.** Si hay negociación comercial, se escala.
+5. **No se mencionan nombres de empresas clientes** ni resultados confidenciales. La
+   experiencia se presenta por sectores.
+6. **No se prometen porcentajes** de margen, ventas ni retorno de la inversión.
+7. **La asesoría 1:1 no se cotiza automáticamente.** Se califica y se escala.
+8. **La comunidad Skool no existe como producto.** Es un proyecto en evaluación.
+
+### Un tarifario en dólares circula por ahí
+
+La skill `propuesta-jit` maneja otro tarifario (USD 6.500 el día in-house, USD 1.500 el
+diagnóstico, USD 62.000 la licencia). **No es el vigente para WhatsApp.** Si aparece en
+una conversación o en un archivo, no lo mezcles con el de arriba. Están sin conciliar.
 
 ## Estilo de la casa
 
@@ -82,6 +97,9 @@ diff, no enterrado en un binario.
   en cada mensaje. Por eso `_huella_knowledge()` ordena alfabéticamente.
 - **Nunca metas nada variable en el system prompt** (fecha de hoy, nombre del cliente,
   un id). Invalida el caché en cada llamada. Eso va en `messages`, no en `system`.
+  La fecha de hoy ya se inyecta así: `fecha_de_hoy()` la agrega como un bloque
+  aparte del último mensaje del cliente, para que el agente pueda descartar un
+  evento vencido de `knowledge/06-calendario.md` sin tocar el prefijo cacheado.
 - **Verifica el caché en los logs.** Cada respuesta imprime `cache escribe` y
   `cache lee`. Si `cache lee` queda en cero mensaje tras mensaje, algo lo está
   invalidando o el contexto no llega al mínimo del modelo (1.024 tokens en Sonnet 5,
