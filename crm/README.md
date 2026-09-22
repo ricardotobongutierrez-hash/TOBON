@@ -30,8 +30,9 @@ Abre <http://localhost:3000>.
 
 ### Sin PostgreSQL instalado
 
-Si dejas `DATABASE_URL` vacía, la aplicación levanta un PostgreSQL embebido
-(PGlite) en la carpeta `.pgdata/`. Sirve para ver el producto sin instalar nada.
+En `.env.example` la línea `DATABASE_URL` viene comentada a propósito: así la
+aplicación levanta un PostgreSQL embebido (PGlite) en la carpeta `.pgdata/` y
+arranca sin instalar nada. Sirve para ver el producto de una.
 
 No lo uses para trabajar de verdad: no soporta dos procesos a la vez (el
 servidor y un script se pelean el archivo) y no sobrevive bien a un cierre
