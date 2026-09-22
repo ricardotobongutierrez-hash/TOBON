@@ -67,7 +67,7 @@ escritas en el código.
 | **Contactos** | Las personas, con su origen, su estado y su próxima acción |
 | **Empresas** | La relación completa con cada organización |
 | **Negocios** | El pipeline en tablero o lista, y todas las propuestas |
-| **Pendientes** | Los seguimientos, agrupados por urgencia y por lo que se espera |
+| **Pendientes** | Los seguimientos por urgencia, lo que se espera y los servicios por entregar |
 | **Finanzas** | Por cobrar, vencido, pagado y facturas, con el detalle por cliente |
 | **Reportes** | Resultados del período, con filtros |
 
@@ -104,6 +104,9 @@ dónde sale cada punto. Se puede fijar a mano.
 
 **Cada cifra de Finanzas se abre** y muestra exactamente qué clientes la
 componen.
+
+**Lo vendido que falta entregar vive en Pendientes**, no escondido dentro de
+cada negocio. Es la otra mitad de la pregunta "qué me queda por hacer".
 
 ### Reglas que corren solas
 

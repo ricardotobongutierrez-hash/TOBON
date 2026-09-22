@@ -6,10 +6,12 @@ import {
   CalendarClock,
   FileText,
   Hourglass,
+  PackageCheck,
   Wallet,
 } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { listTasks } from "@/server/queries/lists";
+import { pendingDeliveries } from "@/server/queries/deliveries";
 import { loadPickers, loadRefs } from "@/server/queries/refs";
 import { endOfDay, startOfDay } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
@@ -18,12 +20,20 @@ import { Empty } from "@/components/ui/empty";
 import { PageHeader } from "@/components/ui/page-header";
 import { ScopeToggle } from "@/components/ui/scope-toggle";
 import { TaskList } from "./task-list";
+import { DeliveriesList } from "./deliveries-list";
 import { NewTaskButton } from "./new-task-button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Pendientes" };
 
-type SectionKey = "vencidos" | "hoy" | "proximos" | "esperando-cliente" | "esperando-propuesta" | "esperando-pago";
+type SectionKey =
+  | "vencidos"
+  | "hoy"
+  | "proximos"
+  | "esperando-cliente"
+  | "esperando-propuesta"
+  | "esperando-pago"
+  | "servicios";
 
 export default async function TasksPage({
   searchParams,
@@ -35,18 +45,23 @@ export default async function TasksPage({
   const scope = sp.vista === "equipo" ? "equipo" : "mios";
   const [refs, pickers] = await Promise.all([loadRefs(), loadPickers()]);
 
-  const all = await listTasks({
-    responsibleId: scope === "mios" ? user.id : undefined,
-    status: "abierta",
-    limit: 600,
-  });
+  const [all, deliveries] = await Promise.all([
+    listTasks({
+      responsibleId: scope === "mios" ? user.id : undefined,
+      status: "abierta",
+      limit: 600,
+    }),
+    // Lo vendido que falta entregar no es un pendiente con fecha, pero es la
+    // otra mitad de la pregunta "que me queda por hacer".
+    pendingDeliveries({ responsibleId: scope === "mios" ? user.id : undefined }),
+  ]);
 
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
 
   const sections: {
-    key: SectionKey;
+    key: Exclude<SectionKey, "servicios">;
     title: string;
     help: string;
     icon: typeof Clock;
@@ -104,9 +119,14 @@ export default async function TasksPage({
   ];
 
   const focus = sp.seccion as SectionKey | undefined;
-  const shown = focus ? sections.filter((s) => s.key === focus) : sections;
+  const shown =
+    focus === "servicios"
+      ? []
+      : focus
+        ? sections.filter((s) => s.key === focus)
+        : sections;
 
-  function sectionHref(key: SectionKey | null) {
+  function sectionHref(key: Exclude<SectionKey, "servicios"> | null) {
     const next = new URLSearchParams();
     if (scope === "equipo") next.set("vista", "equipo");
     if (key) next.set("seccion", key);
@@ -141,6 +161,19 @@ export default async function TasksPage({
         >
           Todo ({all.length})
         </Link>
+        {deliveries.length > 0 ? (
+          <Link
+            href={`/pendientes?seccion=servicios${scope === "equipo" ? "&vista=equipo" : ""}`}
+            className={cn(
+              "shrink-0 rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors",
+              focus === "servicios"
+                ? "border-ink bg-ink text-white"
+                : "border-line bg-white text-muted hover:text-ink",
+            )}
+          >
+            Servicios ({deliveries.length})
+          </Link>
+        ) : null}
         {sections.map((section) => (
           <Link
             key={section.key}
@@ -159,7 +192,7 @@ export default async function TasksPage({
         ))}
       </div>
 
-      {all.length === 0 ? (
+      {all.length === 0 && deliveries.length === 0 ? (
         <Card>
           <Empty
             icon={CheckCircle2}
@@ -182,6 +215,21 @@ export default async function TasksPage({
         </Card>
       ) : (
         <div className="space-y-5">
+          {(!focus || focus === "servicios") && deliveries.length > 0 ? (
+            <Card className="overflow-hidden">
+              <CardHeader
+                title={
+                  <span className="flex items-center gap-2">
+                    <PackageCheck className="size-4 shrink-0 text-brand" aria-hidden />
+                    Servicios por entregar
+                    <span className="tnum text-[13px] font-normal text-muted">({deliveries.length})</span>
+                  </span>
+                }
+                description="Lo que ya se vendió y falta prestar. Lo que no tiene fecha es lo que hay que coordinar."
+              />
+              <DeliveriesList rows={deliveries} />
+            </Card>
+          ) : null}
           {shown.map((section) => (
             <Card key={section.key} className="overflow-hidden">
               <CardHeader

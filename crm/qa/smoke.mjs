@@ -30,6 +30,7 @@ const PAGES = [
   { path: "/negocios?pestana=lista", name: "negocios-lista" },
   { path: "/negocios?pestana=propuestas", name: "negocios-propuestas" },
   { path: "/pendientes", name: "pendientes" },
+  { path: "/pendientes?vista=equipo&seccion=servicios", name: "pendientes-servicios" },
   { path: "/finanzas", name: "finanzas" },
   { path: "/finanzas?kpi=por-cobrar", name: "finanzas-detalle" },
   { path: "/reportes", name: "reportes" },
