@@ -18,7 +18,7 @@ export const STORAGE_BACKEND: StorageBackend =
   process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY ? "supabase" : "local";
 
 const BUCKET = process.env.SUPABASE_STORAGE_BUCKET ?? "jit-crm";
-const LOCAL_ROOT = resolve(process.env.STORAGE_DIR ?? "storage");
+const LOCAL_ROOT = resolve(/* turbopackIgnore: true */ process.env.STORAGE_DIR ?? "storage");
 
 export const MAX_FILE_BYTES = Number(process.env.MAX_FILE_BYTES ?? 15 * 1024 * 1024);
 
@@ -60,12 +60,23 @@ export function buildStorageKey(entityType: string, entityId: string, filename: 
   return `${entityType}/${entityId}/${stamp}-${randomUUID().slice(0, 8)}-${safeFilename(filename)}`;
 }
 
+/**
+ * Supabase tiene dos generaciones de llaves. La antigua (service_role) es un JWT
+ * y va en Authorization. La nueva (sb_secret_...) no es un JWT: va en la
+ * cabecera apikey y, si se manda como Bearer, el servicio la rechaza. Los
+ * proyectos nuevos arrancan con la nueva, asi que se soportan las dos.
+ */
+function supabaseHeaders(): Record<string, string> {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  return key.startsWith("eyJ") ? { apikey: key, Authorization: `Bearer ${key}` } : { apikey: key };
+}
+
 export async function putObject(key: string, data: Buffer, contentType: string): Promise<void> {
   if (STORAGE_BACKEND === "supabase") {
     const res = await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/${BUCKET}/${key}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        ...supabaseHeaders(),
         "Content-Type": contentType,
         "x-upsert": "true",
       },
@@ -82,7 +93,7 @@ export async function putObject(key: string, data: Buffer, contentType: string):
 export async function getObject(key: string): Promise<Buffer> {
   if (STORAGE_BACKEND === "supabase") {
     const res = await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/${BUCKET}/${key}`, {
-      headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` },
+      headers: supabaseHeaders(),
     });
     if (!res.ok) throw new Error(`Supabase Storage respondio ${res.status}`);
     return Buffer.from(await res.arrayBuffer());
@@ -94,16 +105,24 @@ export async function deleteObject(key: string): Promise<void> {
   if (STORAGE_BACKEND === "supabase") {
     await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/${BUCKET}/${key}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` },
+      headers: supabaseHeaders(),
     });
     return;
   }
   await unlink(localPath(key)).catch(() => undefined);
 }
 
-/** Impide que una llave con ".." escape del directorio de almacenamiento. */
+/**
+ * Impide que una llave con ".." escape del directorio de almacenamiento.
+ *
+ * El turbopackIgnore es para el empaquetado, no para el codigo: LOCAL_ROOT sale
+ * de una variable de entorno, asi que el analisis estatico no puede saber a que
+ * carpeta apunta y, por precaucion, arrastra todo el proyecto (el public
+ * incluido) dentro de la funcion del servidor. En Vercel esto ni se usa: alla el
+ * backend es Supabase Storage.
+ */
 function localPath(key: string): string {
-  const path = resolve(join(LOCAL_ROOT, key));
+  const path = resolve(join(/* turbopackIgnore: true */ LOCAL_ROOT, key));
   if (!path.startsWith(LOCAL_ROOT)) throw new Error("Ruta de archivo no valida");
   return path;
 }

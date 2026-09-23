@@ -19,6 +19,21 @@ import { computeLeadScore } from "../src/lib/scoring";
 
 const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "TobonCRM2026";
 
+/**
+ * Con SEED_DEMO=false se siembra solo lo que es de la firma de verdad: usuarios,
+ * etapas, fuentes, el tarifario, las campanas y los ajustes. Es lo que se corre
+ * contra la base de produccion, donde unos clientes inventados serian un
+ * estorbo. Sin la variable se siembra todo, que es lo que uno quiere en local.
+ */
+const CON_DEMO = !["false", "0", "no"].includes((process.env.SEED_DEMO ?? "").toLowerCase());
+
+function credenciales() {
+  console.log("");
+  console.log("Usuarios creados. Contraseña inicial para los tres:");
+  console.log(`  ${SEED_PASSWORD}`);
+  console.log("Cambiala en Ajustes, Mi cuenta, en el primer ingreso.");
+}
+
 function daysAgo(n: number): Date {
   return new Date(Date.now() - n * 86_400_000);
 }
@@ -340,6 +355,13 @@ async function main() {
   }
 
   // ───────────── 7. Datos de demostracion ─────────────
+  if (!CON_DEMO) {
+    console.log("  demo           omitido (SEED_DEMO=false)");
+    credenciales();
+    await close();
+    return;
+  }
+
   const [already] = await db
     .select({ n: sql<number>`count(*)::int` })
     .from(s.companies)
@@ -1163,10 +1185,7 @@ async function main() {
   console.log(`  propuestas     ${proposalSeed.length} (demo)`);
   console.log(`  pendientes     ${taskSeed.length} (demo)`);
   console.log(`  timeline       ${timeline.length} eventos (demo)`);
-  console.log("");
-  console.log("Usuarios creados. Contraseña inicial para los tres:");
-  console.log(`  ${SEED_PASSWORD}`);
-  console.log("Cambiala en Ajustes, Mi cuenta, en el primer ingreso.");
+  credenciales();
 
   await close();
 }

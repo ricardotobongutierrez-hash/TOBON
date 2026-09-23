@@ -24,19 +24,35 @@ export const PGLITE_DIR = process.env.PGLITE_DIR ?? ".pgdata";
 // nueva (y en PGlite un lock nuevo) en cada cambio de archivo.
 const globalForDb = globalThis as unknown as { __jitDb?: Db; __jitPool?: unknown };
 
+/**
+ * En serverless cada instancia abre su propio pool, asi que diez conexiones por
+ * instancia agotan el limite de la base en cuanto hay trafico. Tres alcanzan.
+ */
+const DEFAULT_POOL_MAX = process.env.VERCEL ? 3 : 10;
+
 async function build(): Promise<Db> {
   if (process.env.DATABASE_URL) {
     const { Pool } = await import("pg");
     const { drizzle } = await import("drizzle-orm/node-postgres");
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+      max: Number(process.env.DATABASE_POOL_MAX ?? DEFAULT_POOL_MAX),
       ssl: /sslmode=require|supabase|neon|railway/.test(process.env.DATABASE_URL)
         ? { rejectUnauthorized: false }
         : undefined,
     });
     globalForDb.__jitPool = pool;
     return drizzle(pool, { schema });
+  }
+
+  // La base embebida escribe en disco, y en produccion (Vercel, un contenedor
+  // sin volumen) el disco es efimero o de solo lectura. Antes de fallar con un
+  // "Aborted()" sin pistas, se dice que falta la variable.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Falta DATABASE_URL. En produccion el CRM necesita un PostgreSQL administrado: " +
+        "la base embebida guarda en disco y ahi el disco no sobrevive al despliegue.",
+    );
   }
 
   const { PGlite } = await import("@electric-sql/pglite");

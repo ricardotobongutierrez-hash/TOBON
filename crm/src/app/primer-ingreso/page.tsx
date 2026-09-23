@@ -7,6 +7,14 @@ import { SetupForm } from "./setup-form";
 
 export const metadata: Metadata = { title: "Primer ingreso" };
 
+/**
+ * Nunca estatica. Esta pantalla pregunta a la base si ya hay usuarios, y esa
+ * respuesta cambia justo despues del primer despliegue. Prerenderizada, Next la
+ * congelaria en el momento de compilar y encima exigiria la base durante el
+ * build, que es cuando menos deberia hacer falta.
+ */
+export const dynamic = "force-dynamic";
+
 export default async function SetupPage() {
   // Si ya hay usuarios esta pantalla no debe existir.
   if (await hasUsers()) redirect("/ingresar");

@@ -65,6 +65,13 @@ export const users = pgTable(
       .default({ resumenDiario: true, vencidos: true, pagos: true }),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     mustChangePassword: boolean("must_change_password").notNull().default(false),
+    /**
+     * Freno a la fuerza bruta. El CRM queda expuesto en internet detras de un
+     * formulario, asi que se cuentan los intentos fallidos y despues de varios
+     * la cuenta se bloquea un rato. Se limpian con el primer ingreso correcto.
+     */
+    failedLogins: integer("failed_logins").notNull().default(0),
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
     deletedAt: deletedAt(),

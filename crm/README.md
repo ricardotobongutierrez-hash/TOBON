@@ -262,13 +262,21 @@ Las demás habilitan integraciones y son opcionales.
 
 ### Vercel
 
-1. Importa el repositorio y pon `crm` como directorio raíz del proyecto.
-2. Carga las variables de entorno.
-3. Apunta `DATABASE_URL` a Supabase, Neon o cualquier PostgreSQL administrado.
-4. Configura `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`: el sistema de
-   archivos de Vercel es efímero y los documentos se perderían.
-5. Antes del primer despliegue, corre las migraciones contra esa base:
-   `DATABASE_URL=… npm run db:migrate`.
+La guía completa, paso a paso y para alguien que no vive en la terminal, está en
+[`DESPLEGAR-EN-VERCEL.md`](DESPLEGAR-EN-VERCEL.md). Lo esencial:
+
+1. Directorio raíz del proyecto: `crm`.
+2. `DATABASE_URL` al pooler de transacciones de Supabase (puerto 6543). En
+   producción el CRM se niega a arrancar sin ella: la base embebida escribe en
+   disco y en Vercel el disco no sobrevive.
+3. `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` y un bucket privado: el sistema
+   de archivos de Vercel es efímero. Sirven la llave nueva (`sb_secret_`) y la
+   antigua (`service_role`).
+4. Migraciones y semilla desde un computador, contra el pooler de sesión:
+   `npm run db:migrate` y `SEED_DEMO=false npm run db:seed`.
+5. `CRON_SECRET` para el barrido diario que programa `vercel.json`.
+
+El build no necesita la base: ninguna página toca PostgreSQL al compilar.
 
 ### Servidor propio o contenedor
 

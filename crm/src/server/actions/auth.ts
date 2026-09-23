@@ -21,6 +21,14 @@ const loginSchema = z.object({
   password: z.string().min(1, "Escribe tu contraseña"),
 });
 
+/**
+ * Freno a la fuerza bruta: a los cinco intentos fallidos la cuenta queda en
+ * pausa quince minutos. Con tres usuarios y un formulario abierto a internet es
+ * lo minimo; un ingreso correcto borra la cuenta de intentos.
+ */
+const MAX_INTENTOS = 5;
+const PAUSA_MINUTOS = 15;
+
 export async function login(_prev: unknown, formData: FormData): Promise<ActionResult> {
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
@@ -43,10 +51,40 @@ export async function login(_prev: unknown, formData: FormData): Promise<ActionR
   if (!user) return { ok: false, error: genericError };
   if (!user.active) return { ok: false, error: "Esta cuenta esta desactivada. Habla con el administrador." };
 
-  const valid = await verifyPassword(parsed.data.password, user.passwordHash);
-  if (!valid) return { ok: false, error: genericError };
+  const ahora = new Date();
+  if (user.lockedUntil && user.lockedUntil > ahora) {
+    const minutos = Math.max(1, Math.ceil((user.lockedUntil.getTime() - ahora.getTime()) / 60000));
+    return {
+      ok: false,
+      error: `Demasiados intentos fallidos. Vuelve a intentar en ${minutos} ${minutos === 1 ? "minuto" : "minutos"}.`,
+    };
+  }
 
-  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+  const valid = await verifyPassword(parsed.data.password, user.passwordHash);
+  if (!valid) {
+    // El contador arranca de cero si la pausa anterior ya vencio.
+    const fallidos = (user.lockedUntil && user.lockedUntil <= ahora ? 0 : user.failedLogins) + 1;
+    const bloquear = fallidos >= MAX_INTENTOS;
+    await db
+      .update(users)
+      .set({
+        failedLogins: bloquear ? 0 : fallidos,
+        lockedUntil: bloquear ? new Date(ahora.getTime() + PAUSA_MINUTOS * 60000) : null,
+      })
+      .where(eq(users.id, user.id));
+    if (bloquear) {
+      return {
+        ok: false,
+        error: `Demasiados intentos fallidos. La cuenta queda en pausa ${PAUSA_MINUTOS} minutos.`,
+      };
+    }
+    return { ok: false, error: genericError };
+  }
+
+  await db
+    .update(users)
+    .set({ lastLoginAt: ahora, failedLogins: 0, lockedUntil: null })
+    .where(eq(users.id, user.id));
   await createSession(user.id);
   return { ok: true };
 }

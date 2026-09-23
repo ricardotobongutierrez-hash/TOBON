@@ -171,7 +171,15 @@ export async function resetUserPassword(id: string, password: string): Promise<R
     const db = await getDb();
     await db
       .update(users)
-      .set({ passwordHash: await hashPassword(password), mustChangePassword: true, updatedAt: new Date() })
+      .set({
+        passwordHash: await hashPassword(password),
+        mustChangePassword: true,
+        // Restablecer la clave tambien levanta la pausa por intentos fallidos:
+        // es la salida del administrador cuando alguien se queda afuera.
+        failedLogins: 0,
+        lockedUntil: null,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, id));
     await logAudit({
       userId: me.id,

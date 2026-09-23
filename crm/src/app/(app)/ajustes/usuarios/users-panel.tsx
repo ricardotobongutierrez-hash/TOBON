@@ -96,7 +96,7 @@ export function UsersPanel({ rows, meId }: { rows: User[]; meId: string }) {
         open={creating}
         onOpenChange={setCreating}
         title="Nuevo usuario"
-        description="La persona tendra que cambiar la contraseña en su primer ingreso."
+        description="La persona tendrá que cambiar la contraseña en su primer ingreso."
         footer={
           <>
             <Button variant="outline" onClick={() => setCreating(false)}>
@@ -182,7 +182,7 @@ export function UsersPanel({ rows, meId }: { rows: User[]; meId: string }) {
         open={resetting !== null}
         onOpenChange={(v) => !v && setResetting(null)}
         title="Restablecer contraseña"
-        description={`Se le asigna una contrasena nueva a ${resetting?.name ?? ""}, que tendra que cambiarla al ingresar.`}
+        description={`Se le asigna una contraseña nueva a ${resetting?.name ?? ""}, que tendrá que cambiarla al ingresar.`}
         size="sm"
         footer={
           <>
@@ -205,7 +205,7 @@ export function UsersPanel({ rows, meId }: { rows: User[]; meId: string }) {
           </>
         }
       >
-        <Field label="Contraseña nueva" htmlFor="nueva-clave" required hint="Mínimo 8 caracteres. Compartesela por un canal seguro.">
+        <Field label="Contraseña nueva" htmlFor="nueva-clave" required hint="Mínimo 8 caracteres. Compártesela por un canal seguro.">
           <Input
             id="nueva-clave"
             type="text"
