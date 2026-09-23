@@ -2,6 +2,9 @@
   "name": "jit-crm",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "description": "CRM y sistema de operacion comercial de Jose I. Tobon - Expertos en Negociacion",
   "scripts": {
     "dev": "next dev",

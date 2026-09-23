@@ -260,6 +260,20 @@ Las demás habilitan integraciones y son opcionales.
 
 ## Desplegar
 
+### Railway con Supabase (lo recomendado)
+
+Es lo más barato y lo más simple de operar: USD 5 al mes en Railway y Supabase
+gratis. La guía paso a paso está en
+[`PUBLICAR-EN-RAILWAY.md`](PUBLICAR-EN-RAILWAY.md). Lo esencial:
+
+1. Root Directory `/crm` y la rama que corresponda.
+2. `DATABASE_URL` al pooler de sesión de Supabase (puerto 5432), la misma
+   dirección que se usa para migrar desde un computador. `DATABASE_POOL_MAX=5`.
+3. `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` y un bucket privado.
+4. Railway arranca con `npm start`, que respeta la variable `PORT`.
+5. No hace falta cron: en un servidor que queda prendido,
+   `src/instrumentation.ts` programa el barrido de mantenimiento cada hora.
+
 ### Vercel
 
 La guía completa, paso a paso y para alguien que no vive en la terminal, está en
