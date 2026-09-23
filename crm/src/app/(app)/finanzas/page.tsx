@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { CircleDollarSign } from "lucide-react";
+import { ChevronRight, CircleDollarSign, ListChecks } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { financeOverview } from "@/server/queries/finance";
+import { pagosPorConciliar } from "@/server/queries/reconcile";
 import { loadPickers, loadRefs } from "@/server/queries/refs";
 import { formatMoney, plural } from "@/lib/money";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -20,14 +21,34 @@ export default async function FinancePage({
 }) {
   await requireUser();
   const sp = await searchParams;
-  const { buckets, usdRate } = await financeOverview();
+  const [{ buckets, usdRate }, porConciliar] = await Promise.all([financeOverview(), pagosPorConciliar()]);
 
   return (
     <div className="mx-auto max-w-[1300px]">
       <PageHeader
         title="Finanzas"
-        description="Visibilidad operativa del dinero. Cada cifra se puede abrir para ver de que clientes sale."
+        description="Visibilidad operativa del dinero. Cada cifra se puede abrir para ver de qué clientes sale."
       />
+
+      {porConciliar.cantidad > 0 ? (
+        <Link
+          href="/finanzas/por-conciliar"
+          className="mb-5 flex items-center gap-3 rounded-lg border border-warn/30 bg-warn-soft px-4 py-3 transition-colors hover:border-warn/60 sm:px-5"
+        >
+          <ListChecks className="size-5 shrink-0 text-warn" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-ink">
+              Pagos por conciliar: {plural(porConciliar.cantidad, "negocio")} por{" "}
+              <span className="tnum">{formatMoney(porConciliar.total)}</span>
+            </p>
+            <p className="clip-2 text-[13px] text-muted">
+              Asistieron o se inscribieron, pero el pago no se ha cruzado contra factura o banco. No
+              cuentan como pagado ni como por cobrar.
+            </p>
+          </div>
+          <ChevronRight className="size-5 shrink-0 text-muted" aria-hidden />
+        </Link>
+      ) : null}
 
       {buckets.every((b) => b.lines.length === 0) ? (
         <Card>
@@ -61,7 +82,7 @@ export default async function FinancePage({
                 que lo llevan, y solo aplica a quien necesita factura electrónica.
               </p>
               <p>
-                Los montos en dolares se muestran convertidos a pesos con la tasa de referencia de{" "}
+                Los montos en dólares se muestran convertidos a pesos con la tasa de referencia de{" "}
                 <span className="tnum font-medium text-ink">{formatMoney(usdRate)}</span> por dólar, que se
                 edita en <Link href="/ajustes/finanzas" className="font-medium text-brand hover:text-brand-dark">Ajustes, Configuración financiera</Link>.
               </p>

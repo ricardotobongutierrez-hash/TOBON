@@ -119,7 +119,12 @@ export async function recalcOpportunityFinance(opportunityId: string): Promise<v
   const refunded = oppPayments.length > 0 && oppPayments.every((p) => p.status === "reembolsado");
 
   let paymentStatus: PaymentStatus;
-  if (refunded) paymentStatus = "reembolsado";
+  // "Por conciliar" es una marca humana: asistio, pero nadie ha cruzado el pago
+  // contra factura o banco. Se sostiene hasta que aparezca un pago o una factura;
+  // desde ahi manda el calculo de siempre.
+  if (opp.paymentStatus === "por-conciliar" && oppPayments.length === 0 && oppInvoices.length === 0) {
+    paymentStatus = "por-conciliar";
+  } else if (refunded) paymentStatus = "reembolsado";
   else if (totalDue > 0 && paid >= totalDue - 0.5) paymentStatus = "pagado";
   else if (paid > 0 && (hasOverdue || invoiceOverdue)) paymentStatus = "vencido";
   else if (paid > 0) paymentStatus = "parcial";

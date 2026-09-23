@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@/lib/auth";
 import { listCompanies, listContacts, listOpportunities } from "@/server/queries/lists";
 import { formatDateInput } from "@/lib/dates";
+import { pagosPorConciliar } from "@/server/queries/reconcile";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -94,6 +95,39 @@ export async function GET(
       ["createdAt", "Creada"],
     ]);
     filename = `empresas-${formatDateInput(new Date())}.csv`;
+  } else if (entidad === "por-conciliar") {
+    // Una fila por persona, con la cohorte al lado: es la hoja que se cruza
+    // contra las facturas FAN y el reporte de Bold.
+    const { grupos } = await pagosPorConciliar();
+    const rows = grupos.flatMap((g) =>
+      g.filas.map((f) => ({
+        cohorte: g.cohortName,
+        fecha: g.startsOn,
+        persona: f.contactName ?? "Cupo sin nombre",
+        empresa: f.companyName,
+        correo: f.email,
+        telefono: f.phone,
+        valor: f.amount,
+        moneda: f.currency,
+        origen: f.hoja ? `${f.hoja}, fila ${f.fila}` : null,
+        factura: "",
+        referencia_bold: "",
+      })),
+    );
+    body = csv(rows, [
+      ["cohorte", "Cohorte"],
+      ["fecha", "Fecha"],
+      ["persona", "Persona"],
+      ["empresa", "Empresa"],
+      ["correo", "Correo"],
+      ["telefono", "Teléfono"],
+      ["valor", "Valor sin IVA"],
+      ["moneda", "Moneda"],
+      ["origen", "Origen en el Excel"],
+      ["factura", "Factura FAN"],
+      ["referencia_bold", "Referencia Bold"],
+    ]);
+    filename = `pagos-por-conciliar-${formatDateInput(new Date())}.csv`;
   } else if (entidad === "negocios") {
     const rows = await listOpportunities({
       q: sp.get("q") ?? undefined,

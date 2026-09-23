@@ -15,6 +15,13 @@
       "when": 1790109850052,
       "tag": "0001_bloqueo_intentos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790176784322,
+      "tag": "0002_cohortes_e_importacion",
+      "breakpoints": true
     }
   ]
 }

@@ -33,6 +33,7 @@ const PAGES = [
   { path: "/pendientes?vista=equipo&seccion=servicios", name: "pendientes-servicios" },
   { path: "/finanzas", name: "finanzas" },
   { path: "/finanzas?kpi=por-cobrar", name: "finanzas-detalle" },
+  { path: "/finanzas/por-conciliar", name: "finanzas-por-conciliar" },
   { path: "/reportes", name: "reportes" },
   { path: "/ajustes/mi-cuenta", name: "ajustes-cuenta" },
   { path: "/ajustes/usuarios", name: "ajustes-usuarios" },

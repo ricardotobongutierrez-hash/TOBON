@@ -16,3 +16,9 @@ npm-debug.log*
 # Resultados del QA: se regeneran con npm run qa:pantallas
 qa/capturas/
 qa/resultado.json
+
+# Datos de clientes para importar: nunca van al repositorio.
+importar/
+crm-import-*/
+*.csv
+!qa/**/*.csv

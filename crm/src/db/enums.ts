@@ -119,6 +119,7 @@ export const PAYMENT_STATUSES = [
   "pagado",
   "vencido",
   "reembolsado",
+  "por-conciliar",
 ] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
@@ -129,6 +130,8 @@ export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
   pagado: "Pagado",
   vencido: "Pago vencido",
   reembolsado: "Reembolsado",
+  // Asistio o se inscribio, pero el pago no se ha cruzado contra factura o banco.
+  "por-conciliar": "Pago por conciliar",
 };
 
 export const DELIVERY_STATUSES = [

@@ -15,7 +15,7 @@ export function DemoDataPanel({ count }: { count: number }) {
   if (count === 0) {
     return (
       <p className="text-[13px] leading-relaxed text-muted">
-        No quedan datos de demostración. Todo lo que ves en el CRM es información real que cargo el equipo.
+        No quedan datos de demostración. Todo lo que ves en el CRM es información real que cargó el equipo.
       </p>
     );
   }

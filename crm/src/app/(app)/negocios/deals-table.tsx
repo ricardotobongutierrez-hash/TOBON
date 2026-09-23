@@ -36,8 +36,9 @@ export function DealsTable({ rows, stages }: { rows: OpportunityRow[]; stages: P
               const days = daysBetween(row.stageChangedAt);
               return (
                 <Tr key={row.id}>
-                  <Td className="max-w-60">
-                    <Link href={`/negocios/${row.id}`} className="clip-1 font-medium text-ink hover:text-brand">
+                  <Td className="min-w-56 max-w-72">
+                    {/* Dos lineas: en los negocios de cohorte, el nombre de la persona va al final. */}
+                    <Link href={`/negocios/${row.id}`} className="clip-2 font-medium text-ink hover:text-brand">
                       {row.name}
                     </Link>
                     {row.productName ? (
@@ -75,10 +76,10 @@ export function DealsTable({ rows, stages }: { rows: OpportunityRow[]; stages: P
                       {days}
                     </span>
                   </Td>
-                  <Td className="max-w-48">
+                  <Td className="min-w-44 max-w-56">
                     {row.nextAction ? (
                       <>
-                        <span className="clip-1 text-[13px] text-ink">{row.nextAction}</span>
+                        <span className="clip-2 text-[13px] text-ink">{row.nextAction}</span>
                         <span
                           className={`clip-1 text-[12px] ${isOverdue(row.nextActionDate) ? "font-medium text-danger" : "text-muted"}`}
                         >

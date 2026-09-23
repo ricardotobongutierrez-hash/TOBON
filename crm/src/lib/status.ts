@@ -60,6 +60,8 @@ export function paymentChip(status: PaymentStatus): StatusChip {
     pagado: "verde",
     vencido: "rojo",
     reembolsado: "gris",
+    // Ambar como un pendiente: hay algo que hacer, pero no es una deuda vencida.
+    "por-conciliar": "ambar",
   };
   return { label: PAYMENT_STATUS_LABEL[status], tone: tones[status] };
 }

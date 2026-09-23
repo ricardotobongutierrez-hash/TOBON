@@ -164,6 +164,38 @@ export const tags = pgTable(
   (t) => [uniqueIndex("tags_name_uq").on(t.name)],
 );
 
+// ─────────────────────────── Cohortes ───────────────────────────
+
+/**
+ * Una edicion concreta de un programa abierto: el bootcamp de Medellin del 27 de
+ * mayo, el Diplomado de septiembre. Agrupa a los participantes para conciliar
+ * pagos y comparar cohortes. El id es legible y viene del archivo de origen.
+ */
+export const cohorts = pgTable(
+  "cohorts",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    productId: text("product_id").references(() => products.id, { onDelete: "set null" }),
+    /** El producto tal como venia en el origen, por si no calza con el catalogo. */
+    productLabel: text("product_label"),
+    city: text("city"),
+    startsOn: date("starts_on"),
+    /** Cuando el origen solo trae el mes, se guarda el dia 1 y se marca. */
+    dateApproximate: boolean("date_approximate").notNull().default(false),
+    netPrice: money("net_price"),
+    currency: text("currency").$type<Currency>().notNull().default("COP"),
+    /** Conteos del origen (confirmados, sin marca, excluidos...). Solo referencia. */
+    counts: jsonb("counts").$type<Record<string, number>>().notNull().default({}),
+    confirmedRevenue: money("confirmed_revenue"),
+    ceilingRevenue: money("ceiling_revenue"),
+    notes: text("notes"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("cohorts_starts_idx").on(t.startsOn)],
+);
+
 // ────────────────────── Empresas y contactos ──────────────────────
 
 export const companies = pgTable(
@@ -238,6 +270,8 @@ export const contacts = pgTable(
       .default([]),
     notes: text("notes"),
     lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
+    /** Llave del sistema de origen en una importacion: correrla dos veces no duplica. */
+    externalKey: text("external_key"),
     isDemo: boolean("is_demo").notNull().default(false),
     createdBy: text("created_by").references(() => users.id, { onDelete: "set null" }),
     updatedBy: text("updated_by").references(() => users.id, { onDelete: "set null" }),
@@ -246,6 +280,7 @@ export const contacts = pgTable(
     deletedAt: deletedAt(),
   },
   (t) => [
+    uniqueIndex("contacts_external_key_uq").on(t.externalKey),
     index("contacts_name_idx").on(t.fullName),
     index("contacts_email_idx").on(t.emailNormalized),
     index("contacts_phone_idx").on(t.phoneNormalized),
@@ -316,6 +351,11 @@ export const opportunities = pgTable(
     lostReason: text("lost_reason"),
     lastInteractionAt: timestamp("last_interaction_at", { withTimezone: true }),
     closedAt: timestamp("closed_at", { withTimezone: true }),
+    cohortId: text("cohort_id").references(() => cohorts.id, { onDelete: "set null" }),
+    /** Llave del sistema de origen en una importacion: correrla dos veces no duplica. */
+    externalKey: text("external_key"),
+    /** De donde salio el negocio (hoja, fila, estado original). Nunca datos sensibles. */
+    importMeta: jsonb("import_meta").$type<Record<string, string | number | boolean | null>>(),
     isDemo: boolean("is_demo").notNull().default(false),
     createdBy: text("created_by").references(() => users.id, { onDelete: "set null" }),
     updatedBy: text("updated_by").references(() => users.id, { onDelete: "set null" }),
@@ -324,6 +364,8 @@ export const opportunities = pgTable(
     deletedAt: deletedAt(),
   },
   (t) => [
+    uniqueIndex("opportunities_external_key_uq").on(t.externalKey),
+    index("opportunities_cohort_idx").on(t.cohortId),
     index("opportunities_stage_idx").on(t.stage),
     index("opportunities_contact_idx").on(t.contactId),
     index("opportunities_company_idx").on(t.companyId),
@@ -750,6 +792,7 @@ export const opportunitiesRelations = relations(opportunities, ({ one, many }) =
   contact: one(contacts, { fields: [opportunities.contactId], references: [contacts.id] }),
   company: one(companies, { fields: [opportunities.companyId], references: [companies.id] }),
   product: one(products, { fields: [opportunities.productId], references: [products.id] }),
+  cohort: one(cohorts, { fields: [opportunities.cohortId], references: [cohorts.id] }),
   responsible: one(users, { fields: [opportunities.responsibleId], references: [users.id] }),
   source: one(leadSources, { fields: [opportunities.sourceId], references: [leadSources.id] }),
   campaign: one(campaigns, { fields: [opportunities.campaignId], references: [campaigns.id] }),
