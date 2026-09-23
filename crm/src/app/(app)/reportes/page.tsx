@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { buildReport } from "@/server/queries/reports";
 import { loadRefs } from "@/server/queries/refs";
 import { formatMoney, formatNumber, formatPercent, plural } from "@/lib/money";
-import { formatDate, formatDateInput, startOfMonth } from "@/lib/dates";
+import { ahora, formatDate, formatDateInput, startOfMonth } from "@/lib/dates";
 import { Card, CardHeader } from "@/components/ui/card";
 import { FilterBar } from "@/components/ui/filter-bar";
 import { PageHeader, SectionTitle } from "@/components/ui/page-header";
@@ -25,8 +25,8 @@ export default async function ReportsPage({
   const refs = await loadRefs();
 
   // Por defecto, el mes en curso: es el periodo que se revisa todas las semanas.
-  const from = sp.desde ?? formatDateInput(startOfMonth(new Date()));
-  const to = sp.hasta ?? formatDateInput(new Date());
+  const from = sp.desde ?? formatDateInput(startOfMonth(ahora()));
+  const to = sp.hasta ?? formatDateInput(ahora());
 
   const report = await buildReport({
     from,

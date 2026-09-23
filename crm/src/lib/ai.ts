@@ -80,9 +80,9 @@ export async function commercialInsights(): Promise<Insight[]> {
     insights.push({
       key: `descuidado:${opp.id}`,
       severity: silent >= 14 ? "critico" : "atencion",
-      title: `${opp.name} lleva ${silent} dias sin contacto`,
+      title: `${opp.name} lleva ${silent} días sin contacto`,
       detail: "Es uno de los negocios más grandes del pipeline y está quieto. Una llamada hoy vale más que tres correos la semana entrante.",
-      evidence: `Valor ${Math.round(cop(opp.amount, opp.currency)).toLocaleString("es-CO")} COP · ultimo contacto hace ${silent} dias`,
+      evidence: `Valor ${Math.round(cop(opp.amount, opp.currency)).toLocaleString("es-CO")} COP · último contacto hace ${silent} días`,
       href: `/negocios/${opp.id}`,
       amountCop: cop(opp.amount, opp.currency),
     });
@@ -95,7 +95,7 @@ export async function commercialInsights(): Promise<Insight[]> {
     insights.push({
       key: "sin-accion",
       severity: total >= cfg.highValueCop ? "critico" : "atencion",
-      title: `${noNext.length} ${noNext.length === 1 ? "negocio activo" : "negocios activos"} sin proxima accion`,
+      title: `${noNext.length} ${noNext.length === 1 ? "negocio activo" : "negocios activos"} sin próxima acción`,
       detail: "Un negocio sin siguiente paso agendado no avanza solo. Es lo más rápido de corregir.",
       evidence: `${Math.round(total).toLocaleString("es-CO")} COP en juego`,
       href: "/negocios?filtro=sin-accion",
@@ -134,9 +134,9 @@ export async function commercialInsights(): Promise<Insight[]> {
     insights.push({
       key: "propuestas-estancadas",
       severity: daysBetween(oldest.sentAt) >= 14 ? "critico" : "atencion",
-      title: `${veryStalled.length} ${veryStalled.length === 1 ? "propuesta" : "propuestas"} sin respuesta hace mas de una semana`,
+      title: `${veryStalled.length} ${veryStalled.length === 1 ? "propuesta" : "propuestas"} sin respuesta hace más de una semana`,
       detail: "Después de dos semanas la probabilidad de cierre cae. Vale la pena llamar en vez de esperar otro correo.",
-      evidence: `La mas antigua es ${oldest.number}, enviada hace ${daysBetween(oldest.sentAt)} dias · ${Math.round(total).toLocaleString("es-CO")} COP en total`,
+      evidence: `La más antigua es ${oldest.number}, enviada hace ${daysBetween(oldest.sentAt)} días · ${Math.round(total).toLocaleString("es-CO")} COP en total`,
       href: "/negocios?pestana=propuestas",
       amountCop: total,
     });
@@ -152,8 +152,8 @@ export async function commercialInsights(): Promise<Insight[]> {
       insights.push({
         key: "motivo-perdida",
         severity: "informativo",
-        title: `"${reason}" es el motivo de perdida mas frecuente`,
-        detail: "Cuando un motivo se repite, casi nunca es el precio: es como se esta presentando el valor antes de hablar de plata.",
+        title: `"${reason}" es el motivo de pérdida más frecuente`,
+        detail: "Cuando un motivo se repite, casi nunca es el precio: es cómo se está presentando el valor antes de hablar de plata.",
         evidence: `${count} de ${lost.length} negocios perdidos`,
         href: "/reportes",
       });
@@ -179,7 +179,7 @@ export async function commercialInsights(): Promise<Insight[]> {
       insights.push({
         key: "mejor-fuente",
         severity: "informativo",
-        title: `${best.source} es la fuente que mas convierte`,
+        title: `${best.source} es la fuente que más convierte`,
         detail: "Vale la pena revisar si se le puede dar más presupuesto o más atención a ese canal.",
         evidence: `${best.clientes} clientes de ${best.leads} leads`,
         href: "/reportes",

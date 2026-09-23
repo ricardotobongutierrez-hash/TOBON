@@ -12,7 +12,7 @@ import { logEvent } from "@/lib/events";
 import { onInvoiceIssued, onPaymentSettled, recalcOpportunityFinance } from "@/lib/automation";
 import { financeSettings } from "@/lib/settings";
 import { parseMoneyInput, toMoneyString, toNumber } from "@/lib/money";
-import { addDays, formatDateInput } from "@/lib/dates";
+import { addDays, formatDateInput, toDate } from "@/lib/dates";
 import { explain, fail, ok, type Result } from "./_result";
 import { uploadAttachment } from "./files";
 
@@ -65,7 +65,7 @@ export async function createInvoice(formData: FormData): Promise<Result<{ id: st
     }
 
     const issueDate = d.issueDate ?? formatDateInput(new Date());
-    const dueDate = d.dueDate ?? formatDateInput(addDays(new Date(issueDate), cfg.defaultPaymentTermDays));
+    const dueDate = d.dueDate ?? formatDateInput(addDays(toDate(issueDate)!, cfg.defaultPaymentTermDays));
 
     const [row] = await db
       .insert(invoices)
@@ -274,7 +274,7 @@ export async function createPayment(formData: FormData): Promise<Result<{ id: st
         title: "Pago recibido",
         amount: toMoneyString(amount),
         currency,
-        occurredAt: new Date(d.paidOn),
+        occurredAt: toDate(d.paidOn)!,
         contactId: contactId ?? null,
         companyId: companyId ?? null,
         opportunityId: opportunityId ?? null,
@@ -362,7 +362,7 @@ export async function settlePayment(id: string, formData: FormData): Promise<Res
       title: partial ? "Pago parcial recibido" : "Pago recibido",
       amount: toMoneyString(amount),
       currency: payment.currency,
-      occurredAt: new Date(paidOn),
+      occurredAt: toDate(paidOn)!,
       contactId: payment.contactId,
       companyId: payment.companyId,
       opportunityId: payment.opportunityId,

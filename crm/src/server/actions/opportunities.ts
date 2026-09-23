@@ -12,7 +12,7 @@ import { logEvent } from "@/lib/events";
 import { recalcLeadScore, recalcOpportunityFinance, ensureTask } from "@/lib/automation";
 import { getStages } from "@/lib/pipeline";
 import { parseMoneyInput, toMoneyString } from "@/lib/money";
-import { addDays } from "@/lib/dates";
+import { addDays, toDate } from "@/lib/dates";
 import { explain, fail, ok, type Result } from "./_result";
 
 const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
@@ -101,7 +101,7 @@ export async function createOpportunity(formData: FormData): Promise<Result<{ id
       await db.insert(tasks).values({
         title: d.nextActionTitle,
         kind: "otro",
-        dueAt: d.nextActionDate ? new Date(d.nextActionDate) : addDays(new Date(), 2),
+        dueAt: d.nextActionDate ? toDate(d.nextActionDate)! : addDays(new Date(), 2),
         contactId: d.contactId ?? null,
         companyId,
         opportunityId: row!.id,

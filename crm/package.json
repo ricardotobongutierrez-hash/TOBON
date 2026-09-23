@@ -22,6 +22,7 @@
     "qa:flujos": "node qa/flujos.mjs"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.5.0",
     "@electric-sql/pglite": "^0.5.8",
     "@radix-ui/react-alert-dialog": "^1.1.23",
     "@radix-ui/react-avatar": "^1.2.6",

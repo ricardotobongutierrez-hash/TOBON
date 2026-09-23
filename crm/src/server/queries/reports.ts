@@ -16,7 +16,7 @@ import {
 import { getStages } from "@/lib/pipeline";
 import { financeSettings } from "@/lib/settings";
 import { toNumber } from "@/lib/money";
-import { formatDateInput } from "@/lib/dates";
+import { formatDateInput, toDate } from "@/lib/dates";
 
 const responsible = aliasedTable(users, "responsable");
 
@@ -48,7 +48,7 @@ export async function buildReport(filters: ReportFilters) {
   const cop = (amount: string | number, currency: string) =>
     toNumber(amount) * (currency === "USD" ? usdRate : 1);
 
-  const from = filters.from ? new Date(filters.from) : null;
+  const from = filters.from ? toDate(filters.from) : null;
   const to = filters.to ? new Date(`${filters.to}T23:59:59`) : null;
 
   const oppWhere = [isNull(opportunities.deletedAt)];

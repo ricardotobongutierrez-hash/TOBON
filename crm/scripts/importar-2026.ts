@@ -130,18 +130,28 @@ const MESES: Record<string, number> = {
 /** 2026-05-27, 27/05/2026, 27-may-2026 o solo el mes (2026-02, feb 2026). */
 function fecha(raw: string): { iso: string; aproximada: boolean } | null {
   const t = raw.trim().toLowerCase();
+  const r = fechaExacta(t);
+  if (!r) return null;
+  // "2026-07 (2 y 29)" o "2026-03-25/27": se toma la fecha, pero ya no es exacta.
+  return r.resto ? { iso: r.iso, aproximada: true } : { iso: r.iso, aproximada: r.aproximada };
+}
+
+function fechaExacta(t: string): { iso: string; aproximada: boolean; resto: boolean } | null {
+  const conResto = (m: RegExpMatchArray, iso: string, aproximada: boolean) => ({
+    iso,
+    aproximada,
+    resto: t.slice(m[0].length).trim().length > 0,
+  });
   let m = t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m) return { iso: `${m[1]}-${m[2]!.padStart(2, "0")}-${m[3]!.padStart(2, "0")}`, aproximada: false };
+  if (m) return conResto(m, `${m[1]}-${m[2]!.padStart(2, "0")}-${m[3]!.padStart(2, "0")}`, false);
   m = t.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
-  if (m) return { iso: `${m[3]}-${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}`, aproximada: false };
+  if (m) return conResto(m, `${m[3]}-${m[2]!.padStart(2, "0")}-${m[1]!.padStart(2, "0")}`, false);
   m = t.match(/^(\d{1,2})[\s/-]([a-z]{3})[a-z]*[\s/-](\d{4})/);
-  if (m && MESES[m[2]!]) {
-    return { iso: `${m[3]}-${String(MESES[m[2]!]).padStart(2, "0")}-${m[1]!.padStart(2, "0")}`, aproximada: false };
-  }
-  m = t.match(/^(\d{4})-(\d{1,2})$/);
-  if (m) return { iso: `${m[1]}-${m[2]!.padStart(2, "0")}-01`, aproximada: true };
-  m = t.match(/^([a-z]{3})[a-z]*[\s/-](\d{4})$/);
-  if (m && MESES[m[1]!]) return { iso: `${m[2]}-${String(MESES[m[1]!]).padStart(2, "0")}-01`, aproximada: true };
+  if (m && MESES[m[2]!]) return conResto(m, `${m[3]}-${String(MESES[m[2]!]).padStart(2, "0")}-${m[1]!.padStart(2, "0")}`, false);
+  m = t.match(/^(\d{4})-(\d{1,2})(?!\d|-\d)/);
+  if (m) return conResto(m, `${m[1]}-${m[2]!.padStart(2, "0")}-01`, true);
+  m = t.match(/^([a-z]{3})[a-z]*[\s/-](\d{4})/);
+  if (m && MESES[m[1]!]) return conResto(m, `${m[2]}-${String(MESES[m[1]!]).padStart(2, "0")}-01`, true);
   return null;
 }
 
@@ -223,6 +233,7 @@ type ContactoPlan = {
   productoInteres: string | null;
   existenteId: string | null;
   id: string | null;
+  notaExtra?: string;
 };
 
 type NegocioPlan = {
@@ -251,6 +262,7 @@ type NegocioPlan = {
   entrega: "completado" | "programado" | "cancelado" | "pendiente";
   propuesta: "sin-propuesta" | "enviada";
   meta: Record<string, string | number | boolean | null>;
+  notas?: string | null;
   evento: string;
   eventoFecha: string;
   tarea: null | { titulo: string; tipo: TaskKind; llave: string };
@@ -263,6 +275,8 @@ type TareaSuelta = {
   tipo: TaskKind;
   contacto: string | null;
   grupoEmpresa: string | null;
+  /** Llave del negocio al que se cuelga, si existe (nuevo o de una corrida anterior). */
+  negocio: string | null;
 };
 
 type Revision = { motivo: string; detalle: string; origen: string };
@@ -305,13 +319,15 @@ async function main() {
     producto: cc.una("producto", ["programa"]),
     ciudad: cc.una("ciudad", [], false),
     fecha: cc.una("fecha", ["fecha_cohorte", "fecha_inicio"]),
-    precio: cc.una("precio_neto_cop", ["precio_neto", "precio"]),
+    precio: cc.una("precio_neto_cop", ["precio_lista_neto_cop", "precio_neto", "precio"]),
     confirmado: cc.una("ingreso_confirmado_cop", ["ingreso_confirmado", "confirmado_cop", "confirmado"]),
     techo: cc.una("ingreso_techo_cop", ["ingreso_techo", "techo_cop", "techo"]),
   };
   cc.revisar();
+  // Los conteos son las columnas numericas que no son ni precio ni ingreso.
+  const usadas = new Set(Object.values(C).filter(Boolean));
   const columnasConteo = cohortesCsv.columnas.filter(
-    (c) => /^(n|num|conteo|personas|cantidad)_/.test(c) || /^(confirmados|sin_marca|excluidos|en_lista)$/.test(c),
+    (c) => !usadas.has(c) && cohortesCsv.filas.every((f) => /^\d*$/.test((f[c] ?? "").trim())),
   );
 
   const pc = new Columnas("crm_participantes_2026.csv", partCsv.columnas);
@@ -327,8 +343,8 @@ async function main() {
     factura: pc.una("factura", ["factura_fan", "fan"]),
     evidencia: pc.una("evidencia", ["evidencia_pago"]),
     precio: pc.una("precio_neto_cop", ["precio_neto_aplicado", "precio_neto", "precio"]),
-    hoja: pc.una("hoja", ["hoja_origen"]),
-    fila: pc.una("fila", ["fila_origen"]),
+    hoja: pc.una("hoja", ["hoja_excel", "hoja_origen"]),
+    fila: pc.una("fila", ["fila_excel", "fila_origen"]),
   };
   pc.revisar();
 
@@ -336,15 +352,18 @@ async function main() {
   const Q = {
     id: qc.una("id", ["negocio_id"], false),
     tipo: qc.una("tipo", []),
-    nombre: qc.una("nombre", ["negocio", "cliente", "titulo"]),
+    nombre: qc.una("nombre", ["empresa_o_persona", "negocio", "cliente", "titulo"]),
     empresa: qc.una("empresa", ["compania"], false),
     contacto: qc.una("contacto", ["persona", "contactos", "handles", "handle"], false),
     email: qc.una("email", ["correo"], false),
     telefono: qc.una("telefono", ["telefonos", "celular", "whatsapp"], false),
     producto: qc.una("producto", ["programa"], false),
-    monto: qc.una("monto", ["monto_cop", "valor", "valor_cop"], false),
+    monto: qc.una("monto", ["valor_neto_estimado_cop", "monto_cop", "valor", "valor_cop"], false),
     moneda: qc.una("moneda", ["divisa"], false),
     accion: qc.una("siguiente_accion", ["proxima_accion", "accion"]),
+    estado: qc.una("estado", ["situacion", "contexto"], false),
+    fuente: qc.una("fuente", ["origen"], false),
+    senal: qc.una("fecha_ultima_senal", ["ultima_senal", "fecha"], false),
   };
   qc.revisar();
 
@@ -383,6 +402,7 @@ async function main() {
       confirmado: number;
       techo: number;
       conteos: Record<string, number>;
+      notas: string | null;
     };
     const cohortes = new Map<string, CohortePlan>();
     const productosSinCalzar = new Set<string>();
@@ -394,7 +414,12 @@ async function main() {
       const productoTexto = val(f, C.producto);
       const prod = productoPor(productoTexto);
       if (!prod) productosSinCalzar.add(productoTexto);
-      const ciudad = val(f, C.ciudad) || null;
+      const ciudadTexto = val(f, C.ciudad);
+      const ciudad = ciudadTexto.replace(/\?+$/, "").trim() || null;
+      const notas = [
+        fch.aproximada ? `Fecha en el origen: "${val(f, C.fecha)}".` : null,
+        /\?$/.test(ciudadTexto) ? "Ciudad por confirmar." : null,
+      ].filter(Boolean);
       const conteos: Record<string, number> = {};
       for (const c of columnasConteo) {
         const n = dinero(f[c] ?? "");
@@ -402,7 +427,15 @@ async function main() {
       }
       cohortes.set(id, {
         id,
-        nombre: val(f, C.nombre) || [titleCase(productoTexto), ciudad, fechaCorta(fch.iso, fch.aproximada)].filter(Boolean).join(" · "),
+        // "Diplomado" + "Online" se lee mejor como "Diplomado Online" que separado por un punto.
+        nombre:
+          val(f, C.nombre) ||
+          (ciudad && /^online$/i.test(ciudad)
+            ? [`${titleCase(productoTexto)} Online`, fechaCorta(fch.iso, fch.aproximada)]
+            : [titleCase(productoTexto), ciudad, fechaCorta(fch.iso, fch.aproximada)]
+          )
+            .filter(Boolean)
+            .join(" · "),
         productoId: prod?.id ?? null,
         productoTexto,
         ciudad,
@@ -412,8 +445,17 @@ async function main() {
         confirmado: dinero(val(f, C.confirmado)) ?? 0,
         techo: dinero(val(f, C.techo)) ?? 0,
         conteos,
+        notas: notas.join(" ") || null,
       });
     }
+
+    // En 10 filas la columna empresa trae un telefono. En los cupos sin nombre la
+    // empresa viene en la columna nombre ("Banco de Bogotá", "Clima DEA").
+    const empresaDeFila = (f: Fila): string => {
+      const e = val(f, P.empresa);
+      if (pareceTelefono(e)) return esSi(val(f, P.placeholder)) ? val(f, P.nombre) : "";
+      return e || (esSi(val(f, P.placeholder)) ? val(f, P.nombre) : "");
+    };
 
     // ───────── Participantes: primera pasada, validacion y empresas ─────────
     const grupos = new Grupos();
@@ -436,16 +478,16 @@ async function main() {
       if (!cohortes.has(cid)) throw new Error(`crm_participantes_2026.csv fila ${i + 2}: cohorte "${cid}" no existe`);
       const estado = val(f, P.estado).toUpperCase();
       if (!ESTADOS_VALIDOS.has(estado)) estadosDesconocidos.set(estado, (estadosDesconocidos.get(estado) ?? 0) + 1);
-      anotarEmpresa(val(f, P.empresa), dominioCorporativo(normalizeEmail(val(f, P.email))));
+      anotarEmpresa(empresaDeFila(f), dominioCorporativo(normalizeEmail(val(f, P.email))));
     }
     if (estadosDesconocidos.size) {
       throw new Error(
         `estado_pago que no conozco: ${[...estadosDesconocidos].map(([e, n]) => `"${e}" (${n})`).join(", ")}`,
       );
     }
-    for (const f of pipeCsv.filas) {
-      const emails = separar(val(f, Q.email)).map(normalizeEmail).filter((e): e is string => !!e);
-      anotarEmpresa(val(f, Q.empresa), emails.map(dominioCorporativo).find(Boolean) ?? null);
+    const filasPipeline = pipeCsv.filas.map((f) => leerFilaPipeline(f, Q));
+    for (const r of filasPipeline) {
+      if (r.empresa) anotarEmpresa(r.empresa, r.emails.map(dominioCorporativo).find(Boolean) ?? null);
     }
 
     // Un nombre de empresa sin dominio se liga a un dominio cuya raiz lo contiene
@@ -458,7 +500,7 @@ async function main() {
       if (k.length < 4) continue;
       const candidatos = dominios.filter((d) => {
         const r = raizDominio(d.slice(2));
-        return r.length >= 4 && (r.startsWith(k) || k.startsWith(r));
+        return r.length >= 4 && (r.startsWith(k) || k.startsWith(r) || (r.length >= 6 && k.includes(r)));
       });
       const distintos = [...new Set(candidatos.map((d) => grupos.raiz(d)))];
       if (distintos.length === 1) {
@@ -554,9 +596,10 @@ async function main() {
       const coh = cohortes.get(val(f, P.cohorte))!;
       const estado = val(f, P.estado).toUpperCase();
       const email = normalizeEmail(val(f, P.email));
-      const telefono = normalizePhone(val(f, P.telefono));
+      const empresaCol = val(f, P.empresa);
+      const telefono = normalizePhone(val(f, P.telefono) || (pareceTelefono(empresaCol) ? empresaCol : ""));
       const nombre = val(f, P.nombre);
-      const empresa = val(f, P.empresa);
+      const empresa = empresaDeFila(f);
       const grupo = grupoDe(empresa, email);
       const hoja = val(f, P.hoja);
       const fila = val(f, P.fila);
@@ -657,15 +700,40 @@ async function main() {
     }
     for (const lista of porNombre.values()) {
       if (lista.length < 2) continue;
-      if (lista.every((c) => c.email)) continue; // correos distintos: son personas distintas
+      // Con correos distintos solo se avisa si el nombre es completo: "Lina Franco"
+      // con el correo del trabajo y el personal puede ser la misma persona.
+      const conCorreo = lista.every((c) => c.email);
+      if (conCorreo && lista[0]!.nombre.trim().split(/\s+/).length < 2) continue;
       revision.push({
-        motivo: "Mismo nombre, sin fusionar",
+        motivo: conCorreo ? "Mismo nombre, correos distintos" : "Mismo nombre, sin fusionar",
         detalle: lista
           .map((c) => `${c.nombre} <${c.email ?? "sin correo"}>${c.grupoEmpresa ? ` (${empresas.get(c.grupoEmpresa)!.nombre})` : ""}`)
           .join(" | "),
         origen: "contactos",
       });
     }
+    // Revision: correo que parece de otra persona de la misma empresa (en Matizzo
+    // los correos quedaron cruzados entre filas del Excel).
+    const tokens = (t: string) =>
+      companyKey(t) && t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^a-z]+/).filter((x) => x.length >= 4);
+    const porEmpresaC = new Map<string, ContactoPlan[]>();
+    for (const c of contactos.values()) if (c.grupoEmpresa && c.email) porEmpresaC.set(c.grupoEmpresa, [...(porEmpresaC.get(c.grupoEmpresa) ?? []), c]);
+    for (const lista of porEmpresaC.values()) {
+      for (const c of lista) {
+        const deCorreo = tokens(c.email!.split("@")[0]!) || [];
+        const propios = tokens(c.nombre) || [];
+        if (!deCorreo.length || deCorreo.some((x) => propios.includes(x))) continue;
+        const otro = lista.find((o) => o !== c && deCorreo.some((x) => (tokens(o.nombre) || []).includes(x)));
+        if (otro) {
+          revision.push({
+            motivo: "Correo posiblemente cruzado",
+            detalle: `${c.nombre} tiene ${c.email}, que parece de ${otro.nombre}`,
+            origen: "contactos",
+          });
+        }
+      }
+    }
+
     // Revision: mismo telefono en contactos distintos.
     const porTelefono = new Map<string, ContactoPlan[]>();
     for (const c of contactos.values()) if (c.telefono) porTelefono.set(c.telefono, [...(porTelefono.get(c.telefono) ?? []), c]);
@@ -681,40 +749,70 @@ async function main() {
     // ───────── Pipeline abierto ─────────
     const tareasSueltas: TareaSuelta[] = [];
     const ligadosAParticipante: string[] = [];
-    for (const [i, f] of pipeCsv.filas.entries()) {
-      const tipo = claveColumna(val(f, Q.tipo)).replace(/_/g, "");
+    const recientes = (a: NegocioPlan, b: NegocioPlan) => (b.cerradoEn ?? "").localeCompare(a.cerradoEn ?? "");
+
+    /**
+     * Busca el negocio de participante que corresponde a una fila del pipeline:
+     * por correo, por nombre de la persona o por empresa, siempre dentro de la
+     * misma familia de producto (un cobro del Diplomado no se cuelga de un
+     * bootcamp). Gana la cohorte mas reciente, y dentro de ella el que calza
+     * por persona antes que el que calza solo por empresa.
+     */
+    const buscarParticipante = (r: FilaPipeline, grupo: string | null): NegocioPlan[] => {
+      const fam = familia(r.producto);
+      const nombres = r.personas.map((n) => companyKey(n)).filter((k) => k.length >= 4);
+      const conFamilia = negocios.filter(
+        (n) => n.grupo === "participante" && n.etapa === "ganado" && (!fam || familia(cohortes.get(n.cohorteId!)!.productoTexto) === fam),
+      );
+      const porPersona = conFamilia.filter((n) => {
+        const c = n.contacto ? contactos.get(n.contacto) : undefined;
+        if (!c) return false;
+        if (c.email && r.emails.includes(c.email)) return true;
+        const k = companyKey(c.nombre);
+        return nombres.some((x) => k === x || (x.length >= 10 && k.startsWith(x)));
+      });
+      const porEmpresa = grupo ? conFamilia.filter((n) => n.grupoEmpresa === grupo) : [];
+      const lista = (porPersona.length ? porPersona : porEmpresa).sort(recientes);
+      if (!lista.length) return [];
+      const cohorte = lista[0]!.cohorteId;
+      return lista.filter((n) => n.cohorteId === cohorte);
+    };
+
+    for (const [i, r] of filasPipeline.entries()) {
+      const f = pipeCsv.filas[i]!;
+      const tipo = claveColumna(r.tipo).replace(/_/g, "");
       const base = `${PREFIJO}:pipeline:${val(f, Q.id) || i + 2}`;
+      const origen = `pipeline ${val(f, Q.id) || `fila ${i + 2}`}`;
       const accion = sinSensibles(val(f, Q.accion)).slice(0, 240) || "Definir siguiente paso";
-      const nombre = val(f, Q.nombre);
-      const empresa = val(f, Q.empresa);
-      const emails = separar(val(f, Q.email)).map(normalizeEmail).filter((e): e is string => !!e);
-      const email = emails[0] ?? null;
-      const grupo = grupoDe(empresa, email);
-      const prodTexto = val(f, Q.producto);
-      const prod = prodTexto ? productoPor(prodTexto) : null;
+      const contexto = sinSensibles(val(f, Q.estado)) || null;
+      const senal = fecha(val(f, Q.senal))?.iso ?? hoy;
+      const email = r.emails[0] ?? null;
+      const grupo = r.empresa ? grupoDe(r.empresa, email) : email ? grupoDe("", email) : null;
+      const prod = productoPor(r.producto);
       const montoTexto = val(f, Q.monto);
       const moneda: "COP" | "USD" = /usd/i.test(`${val(f, Q.moneda)} ${montoTexto}`) ? "USD" : "COP";
       const monto = dinero(montoTexto) ?? 0;
-      const persona = val(f, Q.contacto) || nombre;
-      const meta = { origen: "Pipeline abierto 2026-09-23", tipo: val(f, Q.tipo), fila: i + 2 };
-
-      if (tipo === "servicio") {
-        const contacto = email || persona ? contactoPara(persona || email!, email, normalizePhone(val(f, Q.telefono)), grupo, `pipeline:${i + 2}`, {}) : null;
-        tareasSueltas.push({ llave: `${base}:tarea`, titulo: accion, tipo: "coordinar-servicio", contacto, grupoEmpresa: grupo });
-        continue;
-      }
+      const meta = {
+        origen: "Pipeline abierto 2026-09-23",
+        id: val(f, Q.id) || null,
+        tipo: r.tipo,
+        fuente: val(f, Q.fuente) || null,
+        fecha_ultima_senal: val(f, Q.senal) || null,
+      };
 
       if (tipo === "leads" || tipo === "lead") {
-        // Un negocio por persona: un handle o un telefono por lead.
-        const piezas = [...separar(val(f, Q.contacto)), ...separar(val(f, Q.telefono))];
+        // Un negocio por persona: cada handle, telefono o nombre de la lista.
+        const piezas = r.piezas;
         if (!piezas.length) {
-          revision.push({ motivo: "Lead sin handle ni teléfono", detalle: nombre || accion, origen: `pipeline fila ${i + 2}` });
+          revision.push({ motivo: "Lead sin handle ni teléfono", detalle: r.nombre || accion, origen });
           continue;
         }
         for (const [j, pieza] of piezas.entries()) {
-          const tel = /^@/.test(pieza) ? null : normalizePhone(pieza);
-          const etiqueta = /^@/.test(pieza) ? pieza : tel ? `Lead WhatsApp +${tel}` : pieza;
-          const llaveC = tel ? `${PREFIJO}:tel:${tel}` : `${PREFIJO}:handle:${pieza.toLowerCase()}`;
+          const nota = pieza.match(/\(([^)]*)\)/)?.[1] ?? null;
+          const limpio = pieza.replace(/\([^)]*\)/g, "").trim();
+          const tel = /^@/.test(limpio) ? null : normalizePhone(limpio);
+          const etiqueta = /^@/.test(limpio) ? limpio : tel ? `Lead WhatsApp +${tel}` : normalizeName(limpio);
+          const llaveC = tel ? `${PREFIJO}:tel:${tel}` : `${PREFIJO}:handle:${limpio.toLowerCase()}`;
           if (!contactos.has(llaveC)) {
             contactos.set(llaveC, {
               llave: llaveC,
@@ -732,7 +830,7 @@ async function main() {
           }
           negocios.push({
             llave: `${base}:${j + 1}`,
-            nombre: `${nombre || "Lead"} · ${etiqueta}`,
+            nombre: `${r.nombre || "Lead"} · ${etiqueta}${nota ? ` (${nota})` : ""}`,
             contacto: llaveC,
             grupoEmpresa: null,
             productoId: prod?.id ?? null,
@@ -749,8 +847,9 @@ async function main() {
             entrega: "pendiente",
             propuesta: "sin-propuesta",
             meta: { ...meta, pieza: j + 1 },
-            evento: `Lead: ${nombre || "sin nombre"}`,
-            eventoFecha: hoy,
+            notas: [contexto, nota].filter(Boolean).join(" · ") || null,
+            evento: `Lead: ${r.nombre || "sin nombre"}`,
+            eventoFecha: senal,
             tarea: { titulo: accion, tipo: "llamar", llave: `${base}:${j + 1}:tarea` },
             grupo: "pipeline",
           });
@@ -758,71 +857,79 @@ async function main() {
         continue;
       }
 
-      const contacto = email || persona
-        ? contactoPara(persona || email!, email, normalizePhone(val(f, Q.telefono)), grupo, `pipeline:${i + 2}`, {
+      // Contacto de la fila, si hay con quien.
+      const persona = r.personas[0] ?? (email ? nombreDesdeEmail(email) : null);
+      const contacto = persona || email
+        ? contactoPara(persona || email!, email, r.telefonos[0] ? normalizePhone(r.telefonos[0]) : null, grupo, origen, {
             productoInteres: prod?.id ?? null,
             estado: tipo === "cobro" ? "cliente" : "nuevo",
           })
         : null;
+      if (contacto && r.handles.length) {
+        const c = contactos.get(contacto)!;
+        c.notaExtra = `Instagram: ${r.handles.join(", ")}`;
+      }
 
-      if (tipo === "cobro") {
-        // Ganado con pago pendiente: asi aparece en Finanzas, Por cobrar. Si la
-        // misma persona (por correo) ya tiene un negocio de participante, el
-        // cobro se cuelga de ese negocio en vez de duplicar la venta.
-        const prodCobro = productoPor(prodTexto || nombre);
-        const candidatos = email
-          ? negocios.filter(
-              (n) =>
-                n.grupo === "participante" &&
-                n.contacto === `${PREFIJO}:email:${email}` &&
-                n.etapa === "ganado" &&
-                n.estadoPago === "por-conciliar" &&
-                (!prodCobro || n.productoId === prodCobro.id),
-            )
-          : [];
-        // El mas reciente: un cobro abierto es de la cohorte en curso, no de una vieja.
-        const previo = candidatos.sort((a, b) => (b.cerradoEn ?? "").localeCompare(a.cerradoEn ?? ""))[0];
-        if (candidatos.length > 1) {
-          revision.push({
-            motivo: "Cobro con varias cohortes posibles",
-            detalle: `${nombre || email}: se colgó de ${previo!.nombre}; también podría ser ${candidatos.slice(1).map((n) => n.nombre).join(" | ")}`,
-            origen: `pipeline fila ${i + 2}`,
+      // Cobros y servicios de alguien que ya esta en una cohorte: el pendiente se
+      // cuelga de su negocio y no se crea una segunda venta.
+      if (tipo === "cobro" || tipo === "servicio") {
+        const encontrados = buscarParticipante(r, grupo);
+        if (encontrados.length) {
+          const destino = encontrados[0]!;
+          tareasSueltas.push({
+            llave: `${base}:tarea`,
+            titulo: accion,
+            tipo: tipo === "cobro" ? "seguimiento-pago" : "coordinar-servicio",
+            contacto: destino.contacto,
+            grupoEmpresa: destino.grupoEmpresa,
+            negocio: destino.llave,
           });
-        }
-        if (previo) {
-          ligadosAParticipante.push(`${nombre || email} → ${previo.nombre}`);
-          previo.pago = { estado: "pendiente", monto: monto || previo.monto, fecha: hoy, metodo: null, referencia: null, notas: null };
-          previo.estadoPago = "pendiente";
-          previo.tarea = { titulo: accion, tipo: "seguimiento-pago", llave: `${base}:tarea` };
+          ligadosAParticipante.push(`${val(f, Q.id)} ${r.nombre} → ${destino.nombre}`);
+          const estadoOrigen = String(destino.meta.estado_pago);
+          revision.push({
+            motivo: tipo === "cobro" ? "Cobro colgado de su negocio de cohorte" : "Servicio colgado de su negocio de cohorte",
+            detalle:
+              `${r.nombre}: ${destino.nombre} (${estadoOrigen})` +
+              (encontrados.length > 1 ? `; también calzan ${encontrados.slice(1).map((n) => n.nombre).join(" | ")}` : "") +
+              (tipo === "cobro" && estadoOrigen in PAGADOS ? ". Ojo: en la lista ya figura pagado" : "") +
+              (contexto ? `. Contexto: ${contexto}` : ""),
+            origen,
+          });
           continue;
         }
-        if (!email && persona) {
-          const mismoNombre = negocios.filter((n) => n.grupo === "participante" && n.nombre.toLowerCase().includes(normalizeName(persona).toLowerCase()));
-          if (mismoNombre.length) {
-            revision.push({
-              motivo: "Cobro que podría ser de un participante",
-              detalle: `${persona}: ${mismoNombre.map((n) => n.nombre).join(" | ")}`,
-              origen: `pipeline fila ${i + 2}`,
-            });
-          }
-        }
+      }
+
+      if (tipo === "servicio") {
+        tareasSueltas.push({ llave: `${base}:tarea`, titulo: accion, tipo: "coordinar-servicio", contacto, grupoEmpresa: grupo, negocio: null });
+        continue;
       }
 
       const etapa =
         tipo === "cobro"
           ? "ganado"
           : tipo === "inhouse"
-            ? /prepar|armar|hacer la propuesta|enviar (la )?propuesta/i.test(accion)
+            ? /prepar|armar/i.test(`${accion} ${contexto ?? ""}`) && !/enviad|cotizaci/i.test(contexto ?? "")
               ? "propuesta-por-preparar"
               : "propuesta-enviada"
             : tipo === "oportunidad"
               ? "calificado"
               : null;
-      if (!etapa) throw new Error(`crm_pipeline_abierto.csv fila ${i + 2}: tipo "${val(f, Q.tipo)}" no lo conozco`);
+      if (!etapa) throw new Error(`crm_pipeline_abierto.csv ${origen}: tipo "${r.tipo}" no lo conozco`);
+
+      if (monto === 0) {
+        revision.push({
+          motivo: tipo === "cobro" ? "Cobro sin valor" : "Negocio sin valor",
+          detalle: `${r.nombre}${r.producto ? ` (${r.producto})` : ""}: quedó en COP 0, ponle el valor cuando lo tengas`,
+          origen,
+        });
+      }
+      if (tipo === "inhouse" && /en curso|ejecuci/i.test(contexto ?? "")) {
+        revision.push({ motivo: "¿Ya está ganado?", detalle: `${r.nombre}: el origen dice "${contexto}"`, origen });
+      }
 
       negocios.push({
         llave: base,
-        nombre: nombre || empresa || persona || `Negocio fila ${i + 2}`,
+        nombre: [r.nombre, r.producto].filter(Boolean).join(" · "),
         contacto,
         grupoEmpresa: grupo,
         productoId: prod?.id ?? null,
@@ -832,15 +939,16 @@ async function main() {
         etapa,
         probabilidad: etapa === "ganado" ? 100 : etapa === "calificado" ? 20 : etapa === "propuesta-enviada" ? 55 : 45,
         cerradoEn: etapa === "ganado" ? hoy : null,
-        estadoPago: tipo === "cobro" ? "pendiente" : "no-vencido",
-        pago: tipo === "cobro" ? { estado: "pendiente", monto, fecha: hoy, metodo: null, referencia: null, notas: null } : null,
+        estadoPago: tipo === "cobro" && monto > 0 ? "pendiente" : "no-vencido",
+        pago: tipo === "cobro" && monto > 0 ? { estado: "pendiente", monto, fecha: hoy, metodo: null, referencia: null, notas: null } : null,
         factura: null,
         motivoPerdida: null,
         entrega: "pendiente",
         propuesta: etapa === "propuesta-enviada" ? "enviada" : "sin-propuesta",
         meta,
-        evento: tipo === "cobro" ? `Cobro pendiente: ${nombre}` : `Negocio abierto: ${nombre || empresa}`,
-        eventoFecha: hoy,
+        notas: contexto,
+        evento: tipo === "cobro" ? `Cobro pendiente: ${r.nombre}` : `Negocio abierto: ${r.nombre}`,
+        eventoFecha: senal,
         tarea: {
           titulo: accion,
           tipo: tipo === "cobro" ? "seguimiento-pago" : tipo === "inhouse" ? (etapa === "propuesta-enviada" ? "esperar-respuesta" : "enviar-propuesta") : "llamar",
@@ -957,8 +1065,11 @@ async function main() {
     }
 
     console.log("\n── Pendientes");
-    console.log(`  ${negocios.filter((n) => n.tarea).length} ligados a negocios, ${tareasSueltas.length} sueltos (servicio), todos para hoy a nombre de Ricardo`);
-    if (ligadosAParticipante.length) console.log(`  Cobros colgados del negocio del participante: ${ligadosAParticipante.join("; ")}`);
+    console.log(`  ${negocios.filter((n) => n.tarea).length + tareasSueltas.filter((t) => t.negocio).length} ligados a negocios, ${tareasSueltas.filter((t) => !t.negocio).length} sueltos, todos para hoy a nombre de Ricardo`);
+    if (ligadosAParticipante.length) {
+      console.log("  Del pipeline, colgados del negocio que ya tenían en su cohorte (no se crea otra venta):");
+      for (const l of ligadosAParticipante) console.log(`    ${l}`);
+    }
 
     console.log("\n── Datos sensibles");
     console.log(`  texto_original: no se lee. Números largos omitidos en otros textos: ${numerosOmitidos()}`);
@@ -1002,6 +1113,7 @@ async function main() {
             counts: c.conteos,
             confirmedRevenue: c.confirmado.toFixed(2),
             ceilingRevenue: c.techo.toFixed(2),
+            notes: c.notas,
           })
           .onConflictDoNothing();
       }
@@ -1049,6 +1161,7 @@ async function main() {
             interestProductId: c.productoInteres,
             responsibleId: ricardo.id,
             status: c.estado,
+            notes: c.notaExtra ?? null,
             externalKey: c.llave,
             createdBy: ricardo.id,
           })
@@ -1065,6 +1178,7 @@ async function main() {
       }
       const idContacto = (k: string | null) => (k ? (contactos.get(k)?.id ?? null) : null);
 
+      const idNegocio = new Map<string, string>();
       for (const n of nuevos) {
         const contactId = idContacto(n.contacto);
         const companyId = idEmpresa(n.grupoEmpresa);
@@ -1096,11 +1210,13 @@ async function main() {
             cohortId: n.cohorteId,
             externalKey: n.llave,
             importMeta: n.meta,
+            notes: n.notas ?? null,
             createdBy: ricardo.id,
           })
           .onConflictDoNothing()
           .returning({ id: s.opportunities.id });
         if (!opp) continue; // otra corrida lo creo entre la lectura y la escritura
+        idNegocio.set(n.llave, opp.id);
 
         if (n.pago) {
           await t.insert(s.payments).values({
@@ -1175,6 +1291,14 @@ async function main() {
       }
 
       for (const ts of tareasSueltas) {
+        let opportunityId: string | null = null;
+        if (ts.negocio) {
+          opportunityId = idNegocio.get(ts.negocio) ?? null;
+          if (!opportunityId) {
+            const [prev] = await t.select({ id: s.opportunities.id }).from(s.opportunities).where(eq(s.opportunities.externalKey, ts.negocio)).limit(1);
+            opportunityId = prev?.id ?? null;
+          }
+        }
         await t
           .insert(s.tasks)
           .values({
@@ -1183,6 +1307,7 @@ async function main() {
             dueAt: alCierre(hoy),
             contactId: idContacto(ts.contacto),
             companyId: idEmpresa(ts.grupoEmpresa),
+            opportunityId,
             responsibleId: ricardo.id,
             autoKey: ts.llave,
             createdBy: ricardo.id,
@@ -1226,12 +1351,81 @@ async function main() {
   }
 }
 
-/** "@ana, @juan; 300 123 4567 y 310..." → piezas sueltas. */
-function separar(texto: string): string[] {
-  return texto
-    .split(/[,;\n|]|\s+y\s+/)
-    .map((x) => x.trim())
-    .filter(Boolean);
+/** Una celda que es un telefono y no un nombre ("314 6483574", "tel 593 995983672"). */
+function pareceTelefono(texto: string): boolean {
+  const t = texto.trim().replace(/^(tel[eé]fono|tel|cel(ular)?|whatsapp|wa)[\s.:]*/i, "");
+  return /^[\d\s+().-]+$/.test(t) && t.replace(/\D/g, "").length >= 7;
+}
+
+const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const HANDLE_RE = /(?<![\w.])@[A-Za-z0-9_.]+/g;
+
+/** Familia de producto, para no colgar un cobro del Diplomado de un bootcamp. */
+function familia(texto: string): "diplomado" | "bootcamp" | "inhouse" | null {
+  const t = claveColumna(texto);
+  if (/diplomado/.test(t)) return "diplomado";
+  if (/in_?house/.test(t)) return "inhouse";
+  if (/bootcamp|abierto|value/.test(t)) return "bootcamp";
+  return null;
+}
+
+/** "juan.castrillon@..." → "Juan Castrillon". Un buzon generico no da nombre. */
+function nombreDesdeEmail(email: string): string | null {
+  const local = email.split("@")[0]!;
+  return /^[a-z]+[._][a-z]+$/.test(local) ? titleCase(local.replace(/[._]/g, " ")) : null;
+}
+
+type FilaPipeline = {
+  tipo: string;
+  nombre: string;
+  empresa: string | null;
+  personas: string[];
+  emails: string[];
+  handles: string[];
+  telefonos: string[];
+  producto: string;
+  piezas: string[];
+};
+
+/**
+ * El pipeline mezcla en una columna empresas y personas ("Comfama", "Lina
+ * Franco", "Juan (correo@gmail.com)") y en otra contactos, correos y handles.
+ * Aqui se separa cada cosa. La regla: en in-house y oportunidades la primera
+ * columna es la empresa; en cobros y servicios lo es solo si la segunda trae a
+ * otra persona y la primera no es un correo personal.
+ */
+function leerFilaPipeline(f: Fila, Q: Record<string, string | null>): FilaPipeline {
+  const tipo = val(f, Q.tipo);
+  const tk = claveColumna(tipo).replace(/_/g, "");
+  const a = val(f, Q.nombre);
+  const b = val(f, Q.contacto);
+  const emails = [...new Set([a, b, val(f, Q.email)].join(" ").match(EMAIL_RE) ?? [])].map((e) => e.toLowerCase());
+  const handles = [...new Set(b.match(HANDLE_RE) ?? [])];
+  const limpiar = (t: string) =>
+    t.replace(EMAIL_RE, "").replace(HANDLE_RE, "").replace(/\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+  const aLimpio = limpiar(a);
+  const bLimpio = limpiar(b);
+  const producto = val(f, Q.producto);
+  const telefonos = val(f, Q.telefono) ? [val(f, Q.telefono)] : [];
+
+  if (tk === "leads" || tk === "lead") {
+    const piezas = b.split(/;|\n/).map((x) => x.trim()).filter(Boolean);
+    return { tipo, nombre: aLimpio || a, empresa: null, personas: [], emails, handles, telefonos, producto, piezas };
+  }
+
+  const personalEnA = (a.match(EMAIL_RE) ?? []).some((e) => !dominioCorporativo(e.toLowerCase()));
+  const mismaPersona = !!bLimpio && companyKey(bLimpio) === companyKey(aLimpio);
+  let empresa: string | null = val(f, Q.empresa) || null;
+  if (!empresa) {
+    if (tk === "inhouse" || tk === "oportunidad") empresa = aLimpio || null;
+    else if (bLimpio && !mismaPersona && !personalEnA) empresa = aLimpio || null;
+  }
+  let personas: string[];
+  if (bLimpio && !mismaPersona) personas = bLimpio.split(/\s*\/\s*|;/).map((x) => x.trim()).filter(Boolean);
+  else if (empresa && companyKey(empresa) === companyKey(aLimpio)) personas = [];
+  else personas = /^sin identificar/i.test(aLimpio) || !aLimpio ? [] : [aLimpio];
+
+  return { tipo, nombre: aLimpio || a, empresa, personas, emails, handles, telefonos, producto, piezas: [] };
 }
 
 main().catch((err) => {

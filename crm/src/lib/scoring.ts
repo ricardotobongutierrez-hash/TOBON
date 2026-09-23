@@ -64,7 +64,7 @@ export function computeLeadScore(input: ScoreInput): { score: number; factors: S
       authorityDetail = `El cargo "${input.position}" suele decidir`;
     } else if (INFLUENCER_TITLES.test(input.position)) {
       authority = 9;
-      authorityDetail = `El cargo "${input.position}" suele influir en la decision`;
+      authorityDetail = `El cargo "${input.position}" suele influir en la decisión`;
     } else {
       authority = 4;
       authorityDetail = `Cargo registrado: ${input.position}`;
@@ -88,7 +88,7 @@ export function computeLeadScore(input: ScoreInput): { score: number; factors: S
 
   // 4. Ajuste de producto (0-14): pesa el valor del producto de interes.
   let product = 0;
-  let productDetail = "Sin producto de interes registrado";
+  let productDetail = "Sin producto de interés registrado";
   if (input.interestProductName) {
     const price = input.interestProductPrice ?? 0;
     if (price >= 10_000_000) product = 14;
@@ -149,10 +149,10 @@ export function computeLeadScore(input: ScoreInput): { score: number; factors: S
       recencyDetail = "Último contacto hace menos de dos semanas";
     } else if (days <= 30) {
       recency = 0;
-      recencyDetail = `Ultimo contacto hace ${days} dias`;
+      recencyDetail = `Último contacto hace ${days} días`;
     } else {
       recency = -6;
-      recencyDetail = `Sin contacto hace ${days} dias, el lead se esta enfriando`;
+      recencyDetail = `Sin contacto hace ${days} días, el lead se está enfriando`;
     }
   }
   push(factors, "recencia", "Recencia del contacto", recency, recencyDetail);
@@ -181,6 +181,6 @@ function push(list: ScoreFactor[], factor: string, label: string, points: number
 export function scoreBand(score: number): { label: string; tone: "verde" | "azul" | "ambar" | "gris" } {
   if (score >= 70) return { label: "Caliente", tone: "verde" };
   if (score >= 45) return { label: "Templado", tone: "azul" };
-  if (score >= 20) return { label: "Frio", tone: "ambar" };
+  if (score >= 20) return { label: "Frío", tone: "ambar" };
   return { label: "Sin calificar", tone: "gris" };
 }

@@ -10,7 +10,7 @@ import { requireUser } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { logEvent } from "@/lib/events";
 import { recalcLeadScore } from "@/lib/automation";
-import { addDays } from "@/lib/dates";
+import { addDays, toDate } from "@/lib/dates";
 import { explain, fail, ok, type Result } from "./_result";
 
 const emptyToNull = (v: unknown) => (typeof v === "string" && v.trim() === "" ? null : v);
@@ -134,7 +134,7 @@ export async function completeTask(id: string, formData: FormData): Promise<Resu
       await db.insert(tasks).values({
         title: d.nextTitle?.trim() || TASK_KIND_LABEL[kind],
         kind,
-        dueAt: d.nextDate ? new Date(d.nextDate) : addDays(new Date(), 2),
+        dueAt: d.nextDate ? toDate(d.nextDate)! : addDays(new Date(), 2),
         contactId: task.contactId,
         companyId: task.companyId,
         opportunityId: task.opportunityId,
@@ -270,7 +270,7 @@ export async function logInteraction(formData: FormData): Promise<Result> {
       await db.insert(tasks).values({
         title: d.nextTitle,
         kind: "otro",
-        dueAt: d.nextDate ? new Date(d.nextDate) : addDays(new Date(), 2),
+        dueAt: d.nextDate ? toDate(d.nextDate)! : addDays(new Date(), 2),
         contactId: d.contactId ?? null,
         companyId,
         opportunityId: d.opportunityId ?? null,

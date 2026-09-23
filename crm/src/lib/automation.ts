@@ -14,7 +14,7 @@ import type { PaymentStatus, TaskKind } from "@/db/enums";
 import { logEvent } from "./events";
 import { followUpSettings } from "./settings";
 import { toNumber } from "./money";
-import { addDays, startOfDay } from "./dates";
+import { addDays, startOfDay, toDate } from "./dates";
 import { computeLeadScore } from "./scoring";
 
 /**
@@ -111,10 +111,10 @@ export async function recalcOpportunityFinance(opportunityId: string): Promise<v
 
   const today = startOfDay(new Date());
   const hasOverdue = oppPayments.some(
-    (p) => !p.paidOn && p.expectedOn && startOfDay(new Date(p.expectedOn)) < today,
+    (p) => !p.paidOn && p.expectedOn && startOfDay(toDate(p.expectedOn)!) < today,
   );
   const invoiceOverdue = oppInvoices.some(
-    (i) => i.status !== "anulada" && i.dueDate && startOfDay(new Date(i.dueDate)) < today,
+    (i) => i.status !== "anulada" && i.dueDate && startOfDay(toDate(i.dueDate)!) < today,
   );
   const refunded = oppPayments.length > 0 && oppPayments.every((p) => p.status === "reembolsado");
 
@@ -138,7 +138,7 @@ export async function recalcOpportunityFinance(opportunityId: string): Promise<v
       ? "reembolsado"
       : p.paidOn
         ? "pagado"
-        : p.expectedOn && startOfDay(new Date(p.expectedOn)) < today
+        : p.expectedOn && startOfDay(toDate(p.expectedOn)!) < today
           ? "vencido"
           : "pendiente";
     if (next !== p.status) {
@@ -150,7 +150,7 @@ export async function recalcOpportunityFinance(opportunityId: string): Promise<v
   if (paid < totalDue - 0.5) {
     for (const inv of oppInvoices) {
       if (inv.status === "anulada" || inv.status === "no-requiere") continue;
-      if (inv.dueDate && startOfDay(new Date(inv.dueDate)) < today && inv.status !== "vencida") {
+      if (inv.dueDate && startOfDay(toDate(inv.dueDate)!) < today && inv.status !== "vencida") {
         await db.update(invoices).set({ status: "vencida", updatedAt: new Date() }).where(eq(invoices.id, inv.id));
         billingStatus = "vencida";
       }
@@ -293,7 +293,7 @@ export async function onInvoiceIssued(invoiceId: string, userId: string | null):
     autoKey: `cobro-factura:${invoice.id}`,
     title: `Seguimiento de cobro de la factura ${invoice.number}`,
     kind: "seguimiento-pago",
-    dueAt: invoice.dueDate ? new Date(invoice.dueDate) : addDays(new Date(), 15),
+    dueAt: invoice.dueDate ? toDate(invoice.dueDate)! : addDays(new Date(), 15),
     responsibleId: invoice.responsibleId,
     contactId: invoice.contactId,
     companyId: invoice.companyId,

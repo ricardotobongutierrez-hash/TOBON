@@ -3,16 +3,16 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
-import { addDays, formatDateInput, startOfMonth, startOfWeek } from "@/lib/dates";
+import { addDays, ahora, formatDateInput, startOfMonth, startOfWeek } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 
 /** Rango de fechas con los atajos que se usan de verdad. */
 const PRESETS = [
-  { label: "Esta semana", from: () => formatDateInput(startOfWeek(new Date(), { weekStartsOn: 1 })) },
-  { label: "Este mes", from: () => formatDateInput(startOfMonth(new Date())) },
-  { label: "Últimos 30 días", from: () => formatDateInput(addDays(new Date(), -30)) },
-  { label: "Últimos 90 días", from: () => formatDateInput(addDays(new Date(), -90)) },
-  { label: "Este año", from: () => `${new Date().getFullYear()}-01-01` },
+  { label: "Esta semana", from: () => formatDateInput(startOfWeek(ahora(), { weekStartsOn: 1 })) },
+  { label: "Este mes", from: () => formatDateInput(startOfMonth(ahora())) },
+  { label: "Últimos 30 días", from: () => formatDateInput(addDays(ahora(), -30)) },
+  { label: "Últimos 90 días", from: () => formatDateInput(addDays(ahora(), -90)) },
+  { label: "Este año", from: () => `${ahora().getFullYear()}-01-01` },
 ];
 
 export function DateRange({ from, to }: { from: string; to: string }) {
@@ -26,7 +26,7 @@ export function DateRange({ from, to }: { from: string; to: string }) {
     router.push(`/reportes?${next}`);
   }
 
-  const today = formatDateInput(new Date());
+  const today = formatDateInput(ahora());
 
   return (
     <div className="no-print mb-4 flex flex-wrap items-end gap-3">

@@ -15,7 +15,7 @@ import {
 } from "./normalize";
 import { foldCase } from "./utils";
 import { toMoneyString, parseMoneyInput } from "./money";
-import { addDays } from "./dates";
+import { addDays, toDate } from "./dates";
 
 /**
  * Puerta de entrada para el agente de WhatsApp.
@@ -231,7 +231,7 @@ export async function ingestWhatsApp(event: WhatsAppEvent): Promise<IngestResult
 
   // 13. Siempre queda un siguiente paso. Un lead sin accion se pierde.
   const dueAt = event.fechaSiguientePaso
-    ? new Date(event.fechaSiguientePaso)
+    ? (toDate(event.fechaSiguientePaso) ?? new Date())
     : addDays(new Date(), event.urgencia === "alta" ? 0 : 1);
   await ensureTask({
     autoKey: `whatsapp:${contact.id}:${occurredAt.toISOString().slice(0, 10)}`,

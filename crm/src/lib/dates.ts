@@ -13,8 +13,22 @@ import {
   endOfWeek,
 } from "date-fns";
 import { es } from "date-fns/locale";
+import { TZDate } from "@date-fns/tz";
 
 export { addDays, startOfDay, endOfDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek };
+
+/**
+ * Todas las fechas del CRM se leen en hora de Colombia, en el servidor y en el
+ * navegador. Si cada lado usara su propio reloj, el servidor en la nube (UTC)
+ * y el navegador de la oficina (Bogota) pintarian horas distintas, y "hoy"
+ * cambiaria de dia a las 7 p. m.
+ */
+export const ZONA_HORARIA = "America/Bogota";
+
+/** La hora actual en Colombia. Usala en lugar de new Date() para calcular "hoy". */
+export function ahora(): Date {
+  return TZDate.tz(ZONA_HORARIA);
+}
 
 export function formatDate(value: Date | string | null | undefined): string {
   const d = toDate(value);
@@ -49,52 +63,57 @@ export function formatDateTimeInput(value: Date | string | null | undefined): st
 
 export function toDate(value: Date | string | null | undefined): Date | null {
   if (!value) return null;
-  if (value instanceof Date) return isValid(value) ? value : null;
+  if (value instanceof Date) return isValid(value) ? new TZDate(value, ZONA_HORARIA) : null;
+  // "2026-09-23" es un dia del calendario de Colombia, no una medianoche UTC.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [a, m, d] = value.split("-").map(Number) as [number, number, number];
+    return new TZDate(a, m - 1, d, ZONA_HORARIA);
+  }
   const iso = parseISO(value);
-  if (isValid(iso)) return iso;
-  const plain = parse(value, "yyyy-MM-dd", new Date());
-  return isValid(plain) ? plain : null;
+  if (isValid(iso)) return new TZDate(iso, ZONA_HORARIA);
+  const plain = parse(value, "yyyy-MM-dd", ahora());
+  return isValid(plain) ? new TZDate(plain, ZONA_HORARIA) : null;
 }
 
 /** "hoy", "hace 3 días", "en 2 días". Se lee mas rapido que una fecha. */
-export function relativeDay(value: Date | string | null | undefined, now = new Date()): string {
+export function relativeDay(value: Date | string | null | undefined, now = ahora()): string {
   const d = toDate(value);
   if (!d) return "—";
-  const diff = differenceInCalendarDays(startOfDay(d), startOfDay(now));
+  const diff = differenceInCalendarDays(startOfDay(d), startOfDay(new TZDate(now, ZONA_HORARIA)));
   if (diff === 0) return "hoy";
-  if (diff === 1) return "manana";
+  if (diff === 1) return "mañana";
   if (diff === -1) return "ayer";
-  if (diff < 0) return `hace ${Math.abs(diff)} dias`;
-  return `en ${diff} dias`;
+  if (diff < 0) return `hace ${Math.abs(diff)} ${Math.abs(diff) === 1 ? "día" : "días"}`;
+  return `en ${diff} ${diff === 1 ? "día" : "días"}`;
 }
 
-export function daysBetween(from: Date | string | null | undefined, to: Date = new Date()): number {
+export function daysBetween(from: Date | string | null | undefined, to: Date = ahora()): number {
   const d = toDate(from);
   if (!d) return 0;
-  return differenceInCalendarDays(startOfDay(to), startOfDay(d));
+  return differenceInCalendarDays(startOfDay(new TZDate(to, ZONA_HORARIA)), startOfDay(d));
 }
 
-export function isOverdue(value: Date | string | null | undefined, now = new Date()): boolean {
+export function isOverdue(value: Date | string | null | undefined, now = ahora()): boolean {
   const d = toDate(value);
   if (!d) return false;
   return d.getTime() < now.getTime();
 }
 
-export function isToday(value: Date | string | null | undefined, now = new Date()): boolean {
+export function isToday(value: Date | string | null | undefined, now = ahora()): boolean {
   const d = toDate(value);
   if (!d) return false;
-  return differenceInCalendarDays(startOfDay(d), startOfDay(now)) === 0;
+  return differenceInCalendarDays(startOfDay(d), startOfDay(new TZDate(now, ZONA_HORARIA))) === 0;
 }
 
-export function greeting(now = new Date()): string {
-  const h = now.getHours();
+export function greeting(now = ahora()): string {
+  const h = new TZDate(now, ZONA_HORARIA).getHours();
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
 }
 
-export function monthLabel(value: Date = new Date()): string {
-  return format(value, "MMMM yyyy", { locale: es });
+export function monthLabel(value: Date = ahora()): string {
+  return format(new TZDate(value, ZONA_HORARIA), "MMMM yyyy", { locale: es });
 }
 
 /** Normaliza fechas de importacion: 2026-09-22, 22/09/2026, 22-09-2026. */
