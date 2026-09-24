@@ -50,9 +50,15 @@ paso la cifra exacta."
 
 "El Diplomado son cinco semanas, cinco módulos, unas 40 horas entre sesiones en vivo y
 contenido asincrónico. Incluye ocho libros digitales, las grabaciones de todas las
-sesiones y certificado. El precio es COP 3.900.000 y hay tarifa de pago anticipado de
-COP 3.499.000. ¿Te comparto el programa, o prefieres que te confirme primero la fecha
-exacta de inicio?"
+sesiones y certificado. El precio es COP 3.900.000, y hasta el 30 de octubre aplica la
+tarifa anticipada de COP 3.499.000. ¿Te comparto el programa, o prefieres que te
+confirme primero la fecha exacta de inicio?"
+
+## Cuando preguntan por el próximo Bootcamp y no hay fecha
+
+"Las últimas ediciones fueron en septiembre, en Medellín y Bogotá. Todavía no tengo
+confirmada la siguiente fecha. Si me dejas tu nombre y ciudad, te aviso apenas salga.
+¿En qué ciudad te quedaría mejor?"
 
 ## Alguien que pide un dato que no está confirmado
 

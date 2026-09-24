@@ -87,7 +87,8 @@ grupo, pero eso es capacidad demostrada, no un precio de lista.
 Programa de profundización de cinco semanas que combina cursos asincrónicos, sesiones en
 vivo, materiales y libros. Es la oferta más completa del portafolio para profesionales.
 
-- Precio oficial: COP 3.900.000. Pago anticipado: COP 3.499.000.
+- Precio oficial: COP 3.900.000. Pago anticipado: COP 3.499.000 hasta el 30 de octubre
+  de 2026.
 - Próxima edición: segunda semana de noviembre de 2026, manejada alrededor del 9 de
   noviembre. Confirmar la fecha exacta antes de cerrar una venta.
 - Estructura: cinco módulos en cinco semanas, martes y miércoles de 5:00 a 7:00 p.m.
@@ -120,10 +121,13 @@ título personal y no requiere factura paga el precio sin IVA.
 Si la persona no ha dicho nada de facturación, se da el precio sin IVA y se pregunta si
 va a necesitar factura electrónica. No dar los dos precios de entrada, que confunde.
 
-**Cuidado con la fecha límite del pago anticipado.** Internamente se han manejado dos
-fechas distintas y todavía no hay una sola fuente de verdad. Decir: "Tenemos una tarifa
-de pago anticipado vigente, te confirmo la fecha límite exacta", y escalar. Nunca
-inventar la fecha.
+**Fecha límite del pago anticipado: 30 de octubre de 2026.** Confirmada. Hasta ese día
+aplica la tarifa de COP 3.499.000; después, COP 3.900.000. Son COP 401.000 de
+diferencia.
+
+Esta es una fecha real, así que sí se puede usar para crear urgencia legítima: "la
+tarifa anticipada va hasta el 30 de octubre". Lo que no se puede es inventar cupos que
+se acaban, porque el Diplomado no tiene cupo máximo.
 
 Se recomienda a quien quiere formación estructurada y profunda, puede comprometer varias
 semanas, o considera que el Bootcamp se le queda corto en duración.
